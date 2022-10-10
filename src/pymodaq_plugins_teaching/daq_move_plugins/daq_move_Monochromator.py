@@ -21,7 +21,8 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
     is_multiaxes = True
     axes_names = ['wavelength']
 
-    params = [{'title': 'Grating:', 'name': 'grating', 'type': 'list', 'values': Spectrometer.gratings},
+    params = [{'title': 'Info:', 'name': 'info', 'type': 'str', 'value': ''},
+              {'title': 'Grating:', 'name': 'grating', 'type': 'list', 'values': Spectrometer.gratings},
               {'title': 'Tau (ms):', 'name': 'tau', 'type': 'int', 'value': 2000},] +\
              comon_parameters_fun(is_multiaxes, axes_names)
 
@@ -71,7 +72,9 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         self.controller = self.ini_stage_init(old_controller=controller,
                                               new_controller=Spectrometer())
         self.controller.open_communication()
-        info = "Whatever info you want to log"
+        self.settings.child('info').setValue(self.controller.infos)
+
+        info = self.controller.infos
         initialized = True  # or False if your hardware coun't be initialized
         return info, initialized
 

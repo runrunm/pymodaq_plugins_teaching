@@ -104,7 +104,7 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
 
     def move_home(self):
         """Call the reference method of the controller"""
-        self.controller.find_reference
+        self.controller.find_reference()
 
     def stop_motion(self):
         """Stop the actuator and emits move_done signal"""

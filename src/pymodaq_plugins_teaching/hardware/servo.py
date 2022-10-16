@@ -61,6 +61,7 @@ class Servo:
 
     def set_angle(self, angle: int):
         self._board.digital[self._servo_pin].write(angle)
+        self.angle = int(angle)
         time.sleep(0.015)
 
     @property
@@ -72,7 +73,7 @@ class Servo:
 
     @angle.setter
     def angle(self, angle: int):
-        if not isinstance(angle, int) and not(0 <= angle <= 360):
+        if not isinstance(angle, int) and not(0 <= angle <= 180):
             raise ServoError(f'Invalid angle set for the servo on pin {self._servo_pin}')
         else:
             self._angle = angle

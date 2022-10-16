@@ -68,6 +68,7 @@ class DAQ_Move_ServoFirmata(DAQ_Move_base):
         self.controller = self.ini_stage_init(old_controller=controller,
                                               new_controller=Servo())
         self.controller.open_communication(self.settings['comport'])
+        self.controller.servo_pin = self.settings['pin']
 
         info = self.controller.info
         self.settings.child('info').setValue(info)
@@ -108,5 +109,5 @@ class DAQ_Move_ServoFirmata(DAQ_Move_base):
 
 
 if __name__ == '__main__':
-    main(__file__)
+    main(__file__, init=False)
 

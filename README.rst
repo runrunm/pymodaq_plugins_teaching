@@ -9,8 +9,8 @@ PyMoDAQ Plugins Teaching
    :target: https://pymodaq.readthedocs.io/en/stable/?badge=latest
    :alt: Documentation Status
 
-.. image:: https://github.com/PyMoDAQ/pymodaq_plugins_teaching/workflows/Upload%20Python%20Package/badge.svg
-    :target: https://github.com/PyMoDAQ/pymodaq_plugins_teaching
+.. image:: https://github.com/CEMES-CNRS/pymodaq_plugins_teaching/workflows/Upload%20Python%20Package/badge.svg
+    :target: https://github.com/CEMES-CNRS/pymodaq_plugins_teaching
 
 PyMoDAQ plugins developed specifically to teach how to create new plugins
 

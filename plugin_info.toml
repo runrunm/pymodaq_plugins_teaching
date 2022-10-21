@@ -1,7 +1,7 @@
 [plugin-info]
 ## To modify by developper(s) of the plugin
 SHORT_PLUGIN_NAME = 'teaching'
-package-url = 'https://github.com/PyMoDAQ/pymodaq_plugins_teaching'
+package-url = 'https://github.com/CEMES-CNRS/pymodaq_plugins_teaching'
 description = 'Set of base PyMoDAQ plugins including Mock ones for teaching purpose'
 
 author = 'Sébastien Weber'

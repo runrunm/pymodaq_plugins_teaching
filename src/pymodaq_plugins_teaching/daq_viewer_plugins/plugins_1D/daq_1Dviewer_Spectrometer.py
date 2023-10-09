@@ -4,17 +4,11 @@ Created the 09/10/2022
 
 @author: Sebastien Weber
 """
-# -*- coding: utf-8 -*-
-"""
-Created the 09/10/2022
-
-@author: Sebastien Weber
-"""
 
 import numpy as np
 from easydict import EasyDict as edict
-from pymodaq.daq_utils.daq_utils import ThreadCommand, getLineInfo, DataFromPlugins, Axis
-from pymodaq.daq_viewer.utility_classes import DAQ_Viewer_base, comon_parameters, main
+from pymodaq.utils.daq_utils import ThreadCommand, getLineInfo, DataFromPlugins, Axis
+from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters, main
 
 from pymodaq_plugins_teaching.hardware.spectrometer import Spectrometer
 
@@ -71,10 +65,11 @@ class DAQ_1DViewer_Spectrometer(DAQ_Viewer_base):
         self.data_grabed_signal_temp.emit([DataFromPlugins(name='Monochromator',
                                                            data=[np.zeros((Spectrometer.Nx, ))],
                                                            dim='Data1D',
-                                                           labels=['Spectrometer Amplitudes'])])
-        self.emit_x_axis(Axis(data=self.controller.get_wavelength_axis(),
-                              label='Wavelength',
-                              units='nm'))
+                                                           labels=['Spectrometer Amplitudes'],
+                                                           axes=[Axis(data=self.controller.get_wavelength_axis(),
+                                                                     label='Wavelength',
+                                                                     units='nm')]),
+                                           ])
 
         self.settings.child('lambda0').setValue(self.controller.data_wavelength)
         self.settings.child('amplitude').setValue(self.controller.amplitude)
@@ -104,7 +99,10 @@ class DAQ_1DViewer_Spectrometer(DAQ_Viewer_base):
         self.data_grabed_signal.emit([DataFromPlugins(name='Monochromator',
                                                       data=[data_tot],
                                                       dim='Data1D',
-                                                      labels=['Spectrometer Amplitudes']
+                                                      labels=['Spectrometer Amplitudes'],
+                                                      axes=[Axis(data=self.controller.get_wavelength_axis(),
+                                                                label='Wavelength',
+                                                                units='nm')],
                                                       )])
 
     def stop(self):

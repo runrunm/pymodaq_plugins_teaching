@@ -7,13 +7,13 @@ Created the 16/10/2022
 
 import pyfirmata
 import time
-from pymodaq.daq_utils import daq_utils as utils
+from pymodaq.utils.logger import set_logger, get_module_name
 import serial
 from serial.tools.list_ports import comports
 
 
 COMPORTS = [port.name for port in comports()]
-logger = utils.set_logger(utils.get_module_name(__file__))
+logger = set_logger(get_module_name(__file__))
 
 
 class PinError(Exception):

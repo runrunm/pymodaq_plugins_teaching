@@ -4,25 +4,30 @@ Created the 09/10/2022
 
 @author: Sebastien Weber
 """
-
+from qtpy import QtCore
 import numpy as np
 from easydict import EasyDict as edict
-from pymodaq.utils.daq_utils import ThreadCommand, getLineInfo, DataFromPlugins, Axis
+from pymodaq.utils.daq_utils import ThreadCommand, getLineInfo
+from pymodaq.utils.data import DataFromPlugins, Axis, DataToExport
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters, main
 
 from pymodaq_plugins_teaching.hardware.spectrometer import Spectrometer
+from pymodaq.post_treatment.process_to_scalar import DataProcessorFactory
+from pymodaq.utils.math_utils import my_moment
+math_factory = DataProcessorFactory()
 
 
 class DAQ_1DViewer_Spectrometer(DAQ_Viewer_base):
     """
     """
     params = comon_parameters +\
-             [{'title': 'Info:', 'name': 'info', 'type': 'str', 'value': ''},
-              {'title': 'Lambda0:', 'name': 'lambda0', 'type': 'float', 'value': 532},
-              {'title': 'Amp:', 'name': 'amplitude', 'type': 'float', 'value': 10},
-              {'title': 'width (nm):', 'name': 'width', 'type': 'float', 'value': 2},
-              {'title': 'noise:', 'name': 'noise', 'type': 'float', 'value': 0.5},]
+             [{'title': 'Gratings:', 'name': 'gratings', 'type': 'list', 'limits': Spectrometer.gratings},
+              {'title': 'Info:', 'name': 'info', 'type': 'str', 'value': ''},
+              {'title': 'Grating wavelength:', 'name': 'grating', 'type': 'float', 'value': 532},
+            ]
 
+    def ini_attributes(self):
+        self.controller: Spectrometer = None
 
     def commit_settings(self, param):
         """Apply the consequences of a change of value in the detector settings
@@ -32,14 +37,13 @@ class DAQ_1DViewer_Spectrometer(DAQ_Viewer_base):
         param: Parameter
             A given parameter (within detector_settings) whose value has been changed by the user
         """
-        if param.name() == 'lambda0':
-            self.controller.data_wavelength = param.value()
-        elif param.name() == 'amplitude':
-            self.controller.amplitude = param.value()
-        elif param.name() == 'width':
-            self.controller.width = param.value()
-        elif param.name() == 'noise':
-            self.controller.noise = param.value()
+        if param.name() == 'grating':
+            self.controller.set_wavelength(param.value())
+
+        elif param.name() == 'gratings':
+            self.controller.grating = param.value()
+
+        self.x_axis = Axis('wavelength', data=self.controller.get_wavelength_axis())
 
     def ini_detector(self, controller=None):
         """Detector communication initialization
@@ -62,6 +66,7 @@ class DAQ_1DViewer_Spectrometer(DAQ_Viewer_base):
         self.controller.open_communication()
         self.settings.child('info').setValue(self.controller.infos)
         #initialize viewers pannel with the future type of data
+        self.x_axis = Axis('wavelength', data=self.controller.get_wavelength_axis())
         self.data_grabed_signal_temp.emit([DataFromPlugins(name='Monochromator',
                                                            data=[np.zeros((Spectrometer.Nx, ))],
                                                            dim='Data1D',
@@ -70,12 +75,8 @@ class DAQ_1DViewer_Spectrometer(DAQ_Viewer_base):
                                                                      label='Wavelength',
                                                                      units='nm')]),
                                            ])
-
-        self.settings.child('lambda0').setValue(self.controller.data_wavelength)
-        self.settings.child('amplitude').setValue(self.controller.amplitude)
-        self.settings.child('width').setValue(self.controller.width)
-        self.settings.child('noise').setValue(self.controller.noise)
-
+        self.emit_status(ThreadCommand('update_main_settings',
+                                       attribute=[['wait_time'], 234, 'value']))
         info = Spectrometer.infos
         initialized = True
         return info, initialized
@@ -96,14 +97,15 @@ class DAQ_1DViewer_Spectrometer(DAQ_Viewer_base):
             others optionals arguments
         """
         data_tot = self.controller.grab_spectrum()
-        self.data_grabed_signal.emit([DataFromPlugins(name='Monochromator',
-                                                      data=[data_tot],
-                                                      dim='Data1D',
-                                                      labels=['Spectrometer Amplitudes'],
-                                                      axes=[Axis(data=self.controller.get_wavelength_axis(),
-                                                                label='Wavelength',
-                                                                units='nm')],
-                                                      )])
+        dwa = DataFromPlugins(name='Monochromator',
+                              data=[self.controller.get_wavelength_axis(), data_tot, ],
+                              dim='Data1D',
+                              labels=['Spectrometer Amplitudes'],
+                              axes=[],
+                              )
+
+        self.dte_signal.emit(DataToExport('spectro', data=[dwa]))
+        QtCore.QThread.msleep(100)
 
     def stop(self):
         self.controller.stop()

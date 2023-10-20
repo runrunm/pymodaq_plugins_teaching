@@ -25,7 +25,7 @@ class Spectrometer:
         self._wh = 2
         self._grating = self.gratings[0]
 
-        self._tau = 2  # s
+        self._tau = 0.02  # s
         self._alpha = None
         self._init_value = None
         self._start_time = 0
@@ -117,7 +117,14 @@ class Spectrometer:
         self.set_wavelength(600, 'abs')
 
     def set_wavelength(self, value, set_type='abs'):
-        """Move the grating to set the central wavelength out of the spectrometer"""
+        """Move the grating to set the central wavelength out of the spectrometer
+
+        Parameters
+        ----------
+        value; float or DataActuator
+        set_type: str
+            a string, either 'abs' for absolute move or anything for relative one
+        """
         if set_type == 'abs' and value < 0:
             raise ValueError('Wavelength cannot be negative')
         if set_type == 'abs':

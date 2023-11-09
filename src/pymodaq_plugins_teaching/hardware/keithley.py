@@ -9,7 +9,9 @@ import warnings
 from pymodaq_plugins_teaching.hardware.serial_addresses import SerialAddresses, BaseEnum
 import random
 from pylablib.core.devio import SCPI, interface
+
 from pylablib.devices.Keithley.multimeter import TGenericFunctionParameters
+
 
 
 class EnumParameterClass(interface.EnumParameterClass):
@@ -46,7 +48,9 @@ class Keithley2110:
                                                {"volt_dc": "VOLT:DC", "curr_dc": "CURR:DC",
                                                 "freq_volt": "FREQ:VOLT", "none": "NONE"})
 
+
     measurement = Measurement['volt_dc']
+
 
     def __init__(self, address: str = None):
 
@@ -75,6 +79,7 @@ class Keithley2110:
 
     def close(self):
         """ Close de communication channel"""
+
         if self._is_open:
             self._is_open = False
 
@@ -105,10 +110,10 @@ class Keithley2110:
             raise TimeoutError
         return int(self._range * random.random() / self._resolution) * self._resolution
 
+
     def reset(self):
         if not self.is_open:
             raise TimeoutError
-        pass
 
     def get_id(self):
         """ Get info about the connected device """

@@ -4,11 +4,14 @@ from pymodaq.utils.data import DataFromPlugins, DataToExport
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters, main
 from pymodaq.utils.parameter import Parameter
 from pymodaq.utils.parameter import utils as putils
-if True:
+
+
+if False:
     from pylablib.devices.Keithley.multimeter import Keithley2110, TGenericFunctionParameters
     from pyvisa import ResourceManager
 else:
     from pymodaq_plugins_teaching.hardware.keithley import Keithley2110, ResourceManager, TGenericFunctionParameters
+
 
 rm = ResourceManager()
 
@@ -21,7 +24,7 @@ class DAQ_0DViewer_Keithley(DAQ_Viewer_base):
     """
     params = comon_parameters+[
         {'title': 'Connections:', 'name': 'addresses', 'type': 'list', 'limits': RESOURCES},
-        {'title': 'Info:', 'name': 'info', 'type': 'str',},
+        {'title': 'Info:', 'name': 'info', 'type': 'str', 'readonly': True},
         {'title': 'Measurements:', 'name': 'measure', 'type': 'list', 'limits': MEASUREMENTS},
         {'title': 'Config:', 'name': 'config', 'type': 'group', 'children': [
             {'title': 'Reset:', 'name': 'reset', 'type': 'bool_push', 'value': False},
@@ -86,7 +89,7 @@ class DAQ_0DViewer_Keithley(DAQ_Viewer_base):
 
     def get_params(self):
         measurement = self.controller.get_function('primary')
-        status = self.controller.get_function_parameters(measurement)
+        self._write_params(self.controller.get_function_parameters(measurement))
 
     def _write_params(self, params: TGenericFunctionParameters):
         self.settings.child('config', 'auto').setValue(params.autorng)

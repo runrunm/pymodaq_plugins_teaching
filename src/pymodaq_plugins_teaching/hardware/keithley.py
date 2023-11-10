@@ -9,9 +9,7 @@ import warnings
 from pymodaq_plugins_teaching.hardware.serial_addresses import SerialAddresses, BaseEnum
 import random
 from pylablib.core.devio import SCPI, interface
-
 from pylablib.devices.Keithley.multimeter import TGenericFunctionParameters
-
 
 
 class EnumParameterClass(interface.EnumParameterClass):
@@ -79,7 +77,6 @@ class Keithley2110:
 
     def close(self):
         """ Close de communication channel"""
-
         if self._is_open:
             self._is_open = False
 
@@ -100,6 +97,7 @@ class Keithley2110:
         if not self.is_open:
             raise TimeoutError
         if function not in Measurement.names():
+
             warnings.warn(f'The requested measurement, {function} cannot be set')
         else:
             self.measurement = Measurement[function]
@@ -110,10 +108,45 @@ class Keithley2110:
             raise TimeoutError
         return int(self._range * random.random() / self._resolution) * self._resolution
 
-
     def reset(self):
         if not self.is_open:
             raise TimeoutError
+
+    def get_id(self):
+        """ Get info about the connected device """
+        if not self.is_open:
+            raise TimeoutError
+        return 'KEITHLEY INSTRUMENTS INC.,MODEL 2110,1417097,02.01-02-01'
+
+    def get_function_parameters(self, function: str) -> TGenericFunctionParameters:
+        """ Get the parameters of the current measurement: range, resolution, autorange"""
+        if not self.is_open:
+            raise TimeoutError
+        return TGenericFunctionParameters(self._range, self._resolution, self._auto)
+
+    def set_function_parameters(self, function: str, **kwargs):
+        """ Set the parameters of a given measurement
+
+        Parameters
+        ----------
+        function: str
+            one of the possible measurement
+        kwargs: dict
+            mapping of the possible parameters: 'rng', 'resolution', 'autorng'
+        Returns
+        -------
+        TGenericFunctionParameters: the current set parameters
+        """
+        if not self.is_open:
+            raise TimeoutError
+        for kwarg in kwargs:
+            if kwarg == 'rng':
+                self._range = kwargs[kwarg]
+            elif kwarg == 'autorng':
+                self._auto = kwargs[kwarg]
+            elif kwarg == 'resolution':
+                self._resolution = kwargs[kwarg]
+        return self.get_function_parameters(function)
 
     def get_id(self):
         """ Get info about the connected device """

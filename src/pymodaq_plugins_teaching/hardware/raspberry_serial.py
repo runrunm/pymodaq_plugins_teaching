@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 from threading import Thread, Event
 
@@ -98,7 +99,7 @@ class RaspberryReader(RaspberrySerial):
             answer = answer.split(' ')
             answer = [float(ans) for ans in answer]
             return answer
-        except (SerialTimeoutException, TypeError) as e:
+        except (SerialTimeoutException, TypeError, ValueError) as e:
             return ''
 
 
@@ -107,7 +108,7 @@ class RaspberryWriter(RaspberrySerial):
     def __init__(self, com_port: str = None, timeout: int = 1, **kwargs):
         super().__init__(com_port, timeout=0.100, **kwargs)
 
-        self.thread = Thread(None, self._send_data_all)
+        self.thread: Thread = None
         self._event = Event()
         self.frame_yielder = FrameYielder()
 
@@ -122,26 +123,31 @@ class RaspberryWriter(RaspberrySerial):
         else:
             self._event.clear()
 
-    def poll(self):
+    def poll(self) -> bool:
 
         try:
             command: str = self._readline().decode()
             command = command.strip()
-
+            if command != '':
+                print(f'The received command is: {command}')
             if command == 'START':
                 self._start()
 
             elif command == 'STOP':
                 self._stop()
+                return False
 
             elif command == 'READ':
                 self._send_data()
+
+            return True
 
         except SerialTimeoutException:
             pass
 
     def _start(self):
         self.is_running = True
+        self.thread = Thread(None, self._send_data_all)
         self.thread.start()
 
     def _stop(self):
@@ -151,23 +157,45 @@ class RaspberryWriter(RaspberrySerial):
         self._write(f'{self.frame_yielder.grab().to_str()}\n'.encode())
 
     def _send_data_all(self):
-        while not self.is_running:
+        while self.is_running:
             self._send_data()
+            time.sleep(0.003)
 
 
-if __name__ == '__main__':
-    from time import sleep
+def main_reader_all():
+    reader = RaspberryReader('COM21')
     try:
-        reader = RaspberryReader('COM21')
-        writer = RaspberryWriter('COM22')
-
-        reader.single()
-        sleep(0.5)
-        writer.poll()
-        print(reader.read_frame())
+        reader.start()
+        for _ in range(50):
+            print(reader.read_frame())
+        reader.stop()
     except Exception as e:
         print(e)
     finally:
         reader.close()
+
+
+def main_reader():
+    reader = RaspberryReader('COM21')
+    try:
+        for _ in range(10):
+            reader.single()
+            print(reader.read_frame())
+    except Exception as e:
+        print(e)
+    finally:
+        reader.close()
+
+
+def main_writer():
+    writer = RaspberryWriter('COM22')
+    try:
+        while True:
+            writer.poll()
+            time.sleep(0.05)
+    except Exception as e:
+        print(e)
+    finally:
         writer.close()
+
 

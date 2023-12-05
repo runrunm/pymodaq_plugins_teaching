@@ -7,6 +7,7 @@ from typing import List
 
 import numpy as np
 from qtpy import QtCore, QtWidgets
+from scipy.integrate import cumulative_trapezoid
 
 from pymodaq.utils.daq_utils import ThreadCommand
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters, main
@@ -29,6 +30,13 @@ class Frame:
         self.acceleration = np.array(data_list[4:])
 
 
+class Frames:
+    def __init__(self, data_array: np.ndarray):
+        self.time = data_array[:, 0]
+        self.gyroscope = data_array[:, 1:4]
+        self.acceleration = data_array[:, 4:]
+
+
 class FrameCallback(QtCore.QObject):
     """
 
@@ -45,8 +53,8 @@ class FrameCallback(QtCore.QObject):
         self._stop = False
         while not self._stop:
             try:
-                frame = Frame(self.frame_grabber.read_frame())
-                self.event_queue.put(frame)
+                frames = Frames(self.frame_grabber.read_frames(50000))
+                self.event_queue.put(frames)
                 QtCore.QThread.msleep(wait_time)
                 QtWidgets.QApplication.processEvents()
             except Exception as e:
@@ -218,7 +226,7 @@ class DAQ_1DViewer_RaspberryMovement(DAQ_Viewer_base):
     def process_events(self, emit_temp=True):
         try:
             if self._loader.h5saver.isopen():
-                node = self._loader.get_node('/RawData/myframes/Data1D/CH00/EnlData00')
+                node = self._loader.get_node('/RawData/myframes/DataND/CH00/EnlData00')
                 lock.acquire()
                 dwa = self._loader.load_data(node, load_all=True)
                 lock.release()
@@ -230,15 +238,16 @@ class DAQ_1DViewer_RaspberryMovement(DAQ_Viewer_base):
                     dwa.add_extra_attribute(save=True, plot=False)
                     dte.append(dwa)
                     self.dte_signal.emit(dte)
-        except NodeError:
+        except NodeError as e:
             pass
 
     def compute_positions(self, dwa: DataRaw) -> DataToExport:
-        time = dwa.axes[0].get_data()
-        acceleration = dwa.data[dwa.labels.index('acceleration')]
-        positions = (acceleration[:-1, :].T * np.diff(time)**2 * 9.8).T
-        dwa_positions = DataCalculated('positions', data=[positions[:, 1], positions[:, 2]],
-                                       axes=[Axis('time', 's', data=time[:-1])])
+        time = dwa.get_axis_from_index(dwa.nav_indexes[0])[0].get_data()
+        acceleration = dwa.data[dwa.labels.index('gyroscope')]
+        speed = cumulative_trapezoid(acceleration, time, axis=0, initial=0)
+        positions = cumulative_trapezoid(speed, time, axis=0, initial=0)
+        dwa_positions = DataCalculated('positions', data=[positions[:, 0], positions[:, 1], positions[:, 2]],
+                                       axes=[Axis('time', 's', data=time)])
         return DataToExport('Frames', data=[dwa_positions])
 
     def stop(self):
@@ -264,17 +273,19 @@ class SaverCallback(QtCore.QObject):
 
     def work(self):
         while True:
-            frame: Frame = self.event_queue.get()
-            data = DataToExport('frames', data=[
-                DataRaw('time', data=[frame.gyroscope, frame.acceleration],
+            frames: Frames = self.event_queue.get()
+            dwa = DataRaw('time', data=[frames.gyroscope, frames.acceleration],
                         labels=['gyroscope', 'acceleration'],
+                        axes=[Axis('time', 's', data=frames.time, index=0)],
+                        nav_axes=(0,),
                         plot=False,
                         save=True
                         )
-            ])
+            dwa.create_missing_axes()
+            data = DataToExport('frames', data=[dwa])
             lock.acquire()
             if self.saver.isopen():
-                self.saver.add_data('/RawData/myframes', axis_value=frame.time, data=data)
+                self.saver.add_data('/RawData/myframes', axis_value=frames.time, data=data)
             lock.release()
             self.event_queue.task_done()
 

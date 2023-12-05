@@ -159,7 +159,7 @@ class RaspberryWriter(RaspberrySerial):
     def _send_data_all(self):
         while self.is_running:
             self._send_data()
-            time.sleep(0.003)
+            time.sleep(0.000)
 
 
 def main_reader_all():

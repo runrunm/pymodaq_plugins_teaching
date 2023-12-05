@@ -1,6 +1,7 @@
 import time
 from pathlib import Path
 from threading import Thread, Event
+from typing import List
 
 import numpy as np
 import serial
@@ -80,6 +81,18 @@ class RaspberrySerial:
     def _readline(self) -> bytes:
         return self.controller.readline()
 
+    def _readlines(self, hint=0) -> List[bytes]:
+        return self.controller.readlines(hint)
+
+    def _read_all(self):
+        return self.controller.read_all()
+
+    def _read_until(self, expected='\n', size=None):
+        return self.controller.read_until(expected, size)
+
+    def _read_into(self, buffer):
+        return self.controller.readinto(buffer)
+
 
 class RaspberryReader(RaspberrySerial):
 
@@ -98,6 +111,14 @@ class RaspberryReader(RaspberrySerial):
             answer = answer.strip()
             answer = answer.split(' ')
             answer = [float(ans) for ans in answer]
+            return answer
+        except (SerialTimeoutException, TypeError, ValueError) as e:
+            return ''
+
+    def read_frames(self, nchar=100):
+        try:
+            answer = self._readlines(nchar)
+            answer = np.array([np.fromstring(line.strip().decode(), sep=' ') for line in answer])
             return answer
         except (SerialTimeoutException, TypeError, ValueError) as e:
             return ''
@@ -162,13 +183,30 @@ class RaspberryWriter(RaspberrySerial):
             time.sleep(0.000)
 
 
-def main_reader_all():
+def main_reader_multi():
     reader = RaspberryReader('COM21')
     try:
         reader.start()
         for _ in range(50):
             print(reader.read_frame())
         reader.stop()
+    except Exception as e:
+        print(e)
+    finally:
+        reader.close()
+
+
+def main_reader_all(nchar: int = 10000):
+    reader = RaspberryReader('COM21')
+    reader.timeout = 0
+    try:
+        reader.start()
+        for ind in range(10):
+            frames = reader.read_frames(nchar)
+            print(frames.shape)
+        reader.stop()
+        frames = reader.read_frames(nchar)
+        print(frames.shape)
     except Exception as e:
         print(e)
     finally:

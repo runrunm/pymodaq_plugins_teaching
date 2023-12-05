@@ -147,6 +147,7 @@ class DAQ_1DViewer_RaspberryMovement(DAQ_Viewer_base):
 
     def close(self):
         """Terminate the communication protocol"""
+        self.stop()
         self.controller.close()
 
     def grab_data(self, Naverage=1, **kwargs):
@@ -180,10 +181,6 @@ class DAQ_1DViewer_RaspberryMovement(DAQ_Viewer_base):
             ]))
         else:
             self.controller.start()
-
-            if self.h5temp is not None:
-                self.h5temp.close()
-                self.temp_path.cleanup()
             if self.saver_thread is not None:
                 if self.saver_thread.isRunning():
                     self.saver_thread.terminate()
@@ -220,29 +217,41 @@ class DAQ_1DViewer_RaspberryMovement(DAQ_Viewer_base):
 
     def process_events(self, emit_temp=True):
         try:
-            node = self._loader.get_node('/RawData/myframes/Data1D/CH00/EnlData00')
-            lock.acquire()
-            dwa = self._loader.load_data(node, load_all=True)
-            lock.release()
-            print(f'Nframes: {dwa.size}')
-            # dte = self.compute_positions(dwa)
-            # if emit_temp:
-            #     self.dte_signal_temp.emit(dte)
-            # else:
-            #     dwa.add_extra_attribute(save=True, plot=False)
-            #     dte.append(dwa)
-            #     self.dte_signal.emit(dte)
+            if self._loader.h5saver.isopen():
+                node = self._loader.get_node('/RawData/myframes/Data1D/CH00/EnlData00')
+                lock.acquire()
+                dwa = self._loader.load_data(node, load_all=True)
+                lock.release()
+                print(f'Nframes: {dwa.size}')
+                dte = self.compute_positions(dwa)
+                if emit_temp:
+                    self.dte_signal_temp.emit(dte)
+                else:
+                    dwa.add_extra_attribute(save=True, plot=False)
+                    dte.append(dwa)
+                    self.dte_signal.emit(dte)
         except NodeError:
             pass
 
     def compute_positions(self, dwa: DataRaw) -> DataToExport:
-        return DataToExport('Frames', data=[dwa])
+        time = dwa.axes[0].get_data()
+        acceleration = dwa.data[dwa.labels.index('acceleration')]
+        positions = (acceleration[:-1, :].T * np.diff(time)**2 * 9.8).T
+        dwa_positions = DataCalculated('positions', data=[positions[:, 1], positions[:, 2]],
+                                       axes=[Axis('time', 's', data=time[:-1])])
+        return DataToExport('Frames', data=[dwa_positions])
 
     def stop(self):
         """Stop the current grab hardware wise if necessary"""
         self.timer.stop()
         self.controller.stop()
         self.grabber_stop_signal.emit()
+        QtWidgets.QApplication.processEvents()
+        if self.h5temp is not None and self.h5temp.isopen():
+            self.h5temp.flush()
+            self.h5temp.close()
+        if self.temp_path is not None:
+            self.temp_path.cleanup()
 
         return ''
 
@@ -264,7 +273,8 @@ class SaverCallback(QtCore.QObject):
                         )
             ])
             lock.acquire()
-            self.saver.add_data('/RawData/myframes', axis_value=frame.time, data=data)
+            if self.saver.isopen():
+                self.saver.add_data('/RawData/myframes', axis_value=frame.time, data=data)
             lock.release()
             self.event_queue.task_done()
 

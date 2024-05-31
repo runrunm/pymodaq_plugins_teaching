@@ -8,7 +8,7 @@ from pymodaq.utils.parameter import Parameter
 from pymodaq_plugins_teaching.hardware.spectrometer import Spectrometer
 
 
-class DAQ_0DViewer_MonoChromator(DAQ_Viewer_base):
+class DAQ_0DViewer_PhotodiodeMonochromator(DAQ_Viewer_base):
     """
     """
     params = comon_parameters+[
@@ -46,7 +46,7 @@ class DAQ_0DViewer_MonoChromator(DAQ_Viewer_base):
         self.ini_detector_init(old_controller=controller,
                                new_controller=Spectrometer())
 
-        if self.settings['multiaxes', 'multi_status'] == 'Master':
+        if self.settings['controller_status'] == 'Master':
             initialized = self.controller.open_communication()
         else:
             initialized = True

@@ -28,7 +28,7 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
     data_actuator_type = DataActuatorType['DataActuator']  # wether you use the new data style for actuator otherwise set this
     # as  DataActuatorType['float']  (or entirely remove the line)
 
-    params = [{'title': 'mytilte', 'name': 'gratings', 'type': 'list', 'limits': Spectrometer.gratings},
+    params = [{'title': 'Grating', 'name': 'gratings', 'type': 'list', 'limits': Spectrometer.gratings},
                 ] + comon_parameters_fun(is_multiaxes, axes_names, epsilon=_epsilon)
     # _epsilon is the initial default value for the epsilon parameter allowing pymodaq to know if the controller reached
     # the target value. It is the developer responsibility to put here a meaningful value

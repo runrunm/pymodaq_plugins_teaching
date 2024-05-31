@@ -11,18 +11,9 @@ from pymodaq_plugins_teaching.daq_viewer_plugins.plugins_2D.daq_2Dviewer_CameraM
 from pymodaq_plugins_teaching.daq_move_plugins.daq_move_Monochromator import DAQ_Move_Monochromator
 
 
-class DAQ_1DViewer_Spectrometer(DAQ_2DViewer_CameraMonochromator):
+class DAQ_1DViewer_SpectrometerNoParam(DAQ_2DViewer_CameraMonochromator):
     """
     """
-    param_camera = DAQ_2DViewer_CameraMonochromator.params
-    params_monochromator = DAQ_Move_Monochromator.params
-
-    params = ([{'title': 'Central Wavelength', 'name': 'central_wavelength', 'type': 'float',
-               'value': 515}] +
-              param_camera +
-              [{'title': 'Monochromator', 'name': 'monochromator_settings', 'type': 'group',
-                'children': DAQ_Move_Monochromator.params}
-              ])
 
     def ini_attributes(self):
         self.controller: Spectrometer = None
@@ -37,13 +28,7 @@ class DAQ_1DViewer_Spectrometer(DAQ_2DViewer_CameraMonochromator):
         param: Parameter
             A given parameter (within detector_settings) whose value has been changed by the user
         """
-        if 'monochromator_settings' in putils.get_param_path(param):
-            self.monochromator.commit_settings(param)
-
-        elif param.name() == 'central_wavelength':
-            self.monochromator.move_abs(DataActuator(data=param.value()))
-        else:
-            super().commit_settings(param)
+        super().commit_settings(param)
 
     def ini_detector(self, controller=None):
         """Detector communication initialization
@@ -64,10 +49,7 @@ class DAQ_1DViewer_Spectrometer(DAQ_2DViewer_CameraMonochromator):
         cam_status, cam_init = super().ini_detector(controller)
         QtWidgets.QApplication.processEvents()
 
-        self.monochromator = DAQ_Move_Monochromator(None, self.settings.child(
-            'monochromator_settings').saveState())
-        self.monochromator.settings = self.settings.child('monochromator_settings')
-        self.monochromator.emit_status = self.emit_status
+        self.monochromator = DAQ_Move_Monochromator()
         self.monochromator.settings.child('multiaxes', 'multi_status').setValue('Slave')
         monochromator_status, monochromator_init = self.monochromator.ini_stage(self.controller)
 

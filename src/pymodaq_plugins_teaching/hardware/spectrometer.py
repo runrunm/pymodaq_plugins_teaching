@@ -156,7 +156,7 @@ class Spectrometer:
             coeff = 0.7
         elif self._grating == 'G1200':
             coeff = 0.25
-        return (np.linspace(0, self.Nx, self.Nx, endpoint=False) - self.Nx / 2) * coeff + self._lambda
+        return (np.linspace(0, self.Nx, self.Nx, endpoint=False) - self.Nx / 2) * coeff + self.get_wavelength()
 
     @property
     def data_wavelength(self,):

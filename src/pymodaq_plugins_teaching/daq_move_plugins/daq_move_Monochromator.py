@@ -46,12 +46,7 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
     # the target value. It is the developer responsibility to put here a meaningful value
 
     def ini_attributes(self):
-        #  TODO declare the type of the wrapper (and assign it to self.controller) you're going to use for easy
-        #  autocompletion
         self.controller: Spectrometer = None
-
-        #TODO declare here attributes you want/need to init with a default value
-        pass
 
     def get_actuator_value(self):
         """Get the current value from the hardware with scaling conversion.
@@ -60,9 +55,7 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         -------
         float: The position obtained after scaling conversion.
         """
-        ## TODO for your custom plugin
-        raise NotImplemented  # when writing your own plugin remove this line
-        pos = DataActuator(data=self.controller.your_method_to_get_the_actuator_value())  # when writing your own plugin replace this line
+        pos = DataActuator(data=self.controller.get_wavelength())  # when writing your own plugin replace this line
         pos = self.get_position_with_scaling(pos)
         return pos
 

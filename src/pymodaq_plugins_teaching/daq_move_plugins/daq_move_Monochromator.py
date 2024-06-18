@@ -5,12 +5,7 @@ from pymodaq.utils.parameter import Parameter
 
 from pymodaq_plugins_teaching.hardware.spectrometer import Spectrometer
 
-# TODO:
-# (1) change the name of the following class to DAQ_Move_TheNameOfYourChoice
-# (2) change the name of this file to daq_move_TheNameOfYourChoice ("TheNameOfYourChoice" should be the SAME
-#     for the class name and the file name.)
-# (3) this file should then be put into the right folder, namely IN THE FOLDER OF THE PLUGIN YOU ARE DEVELOPING:
-#     pymodaq_plugins_my_plugin/daq_move_plugins
+
 class DAQ_Move_Monochromator(DAQ_Move_base):
     """ Instrument plugin class for an actuator.
     
@@ -40,7 +35,12 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
     data_actuator_type = DataActuatorType['DataActuator']  # wether you use the new data style for actuator otherwise set this
     # as  DataActuatorType['float']  (or entirely remove the line)
 
-    params = [   # TODO for your custom plugin: elements to be added here as dicts in order to control your custom stage
+    params = [
+                 {'title': 'Infos', 'name': 'infos', 'type': 'str', 'value': ''},
+                 {'title': 'Grating', 'name': 'gratings', 'type': 'list',
+                  'value': Spectrometer.gratings[0],
+                  'limits': Spectrometer.gratings},
+                 {'title': 'Tau (ms)', 'name': 'tau', 'type': 'int', 'value': 500},
                 ] + comon_parameters_fun(is_multiaxes, axis_names=_axis_names, epsilon=_epsilon)
     # _epsilon is the initial default value for the epsilon parameter allowing pymodaq to know if the controller reached
     # the target value. It is the developer responsibility to put here a meaningful value
@@ -100,6 +100,7 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
             initialized = self.controller.open_communication()
         else:
             initialized = True
+        self.controller.tau = self.settings['tau'] / 1000  # tau in settings in ms but in driver in seconds
 
         info = "Successful initialization"
 

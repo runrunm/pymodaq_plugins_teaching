@@ -104,8 +104,14 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         self.ini_stage_init(old_controller=controller,
                             new_controller=Spectrometer())
 
+        if self.is_master:  # implemented in the current 4.3.x_dev branch, otherwise
+            # use self.settings['multiaxes', 'multi_status'] == 'Master'
+            initialized = self.controller.open_communication()
+        else:
+            initialized = True
+
         info = "Successful initialization"
-        initialized = self.controller.open_communication()
+
         return info, initialized
 
     def move_abs(self, value: DataActuator):

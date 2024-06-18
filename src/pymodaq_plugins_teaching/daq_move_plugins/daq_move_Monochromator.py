@@ -117,7 +117,7 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         self.target_value = value
         value = self.set_position_with_scaling(value)  # apply scaling if the user specified one
         self.controller.set_wavelength(value.value())  # when writing your own plugin replace this line
-        self.emit_status(ThreadCommand('Update_Status', ['Some info you want to log']))
+        self.emit_status(ThreadCommand('Update_Status', ['doing an absolute move']))
 
     def move_rel(self, value: DataActuator):
         """ Move the actuator to the relative target actuator value defined by value
@@ -129,11 +129,8 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         value = self.check_bound(self.current_position + value) - self.current_position
         self.target_value = value + self.current_position
         value = self.set_position_relative_with_scaling(value)
-
-        ## TODO for your custom plugin
-        raise NotImplemented  # when writing your own plugin remove this line
-        self.controller.your_method_to_set_a_relative_value(value.value())  # when writing your own plugin replace this line
-        self.emit_status(ThreadCommand('Update_Status', ['Some info you want to log']))
+        self.controller.set_wavelength(value.value(), set_type='rel')  # when writing your own plugin replace this line
+        self.emit_status(ThreadCommand('Update_Status', ['Doing a relative move']))
 
     def move_home(self):
         """Call the reference method of the controller"""

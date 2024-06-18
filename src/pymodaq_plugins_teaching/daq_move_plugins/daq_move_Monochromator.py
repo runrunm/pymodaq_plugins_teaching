@@ -137,9 +137,7 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
     def move_home(self):
         """Call the reference method of the controller"""
 
-        ## TODO for your custom plugin
-        raise NotImplemented  # when writing your own plugin remove this line
-        self.controller.your_method_to_get_to_a_known_reference()  # when writing your own plugin replace this line
+        self.controller.find_reference()  # when writing your own plugin replace this line
         self.emit_status(ThreadCommand('Update_Status', ['Some info you want to log']))
 
     def stop_motion(self):

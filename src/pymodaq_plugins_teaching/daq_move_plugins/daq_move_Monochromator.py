@@ -36,7 +36,7 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
     # as  DataActuatorType['float']  (or entirely remove the line)
 
     params = [
-                 {'title': 'Infos', 'name': 'infos', 'type': 'str', 'value': ''},
+                 {'title': 'Infos', 'name': 'infos', 'type': 'str', 'value': '', 'readonly': True},
                  {'title': 'Grating', 'name': 'gratings', 'type': 'list',
                   'value': Spectrometer.gratings[0],
                   'limits': Spectrometer.gratings},
@@ -101,7 +101,7 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         else:
             initialized = True
         self.controller.tau = self.settings['tau'] / 1000  # tau in settings in ms but in driver in seconds
-
+        self.settings.child('infos').setValue(self.controller.infos)
         info = "Successful initialization"
 
         return info, initialized

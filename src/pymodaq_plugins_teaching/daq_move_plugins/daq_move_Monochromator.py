@@ -4,7 +4,9 @@ from pymodaq.utils.daq_utils import ThreadCommand # object used to send info bac
 from pymodaq.utils.parameter import Parameter
 
 from pymodaq_plugins_teaching.hardware.spectrometer import Spectrometer
+from pymodaq_plugins_teaching.utils import Config
 
+config = Config()
 
 class DAQ_Move_Monochromator(DAQ_Move_base):
     """ Instrument plugin class for an actuator.

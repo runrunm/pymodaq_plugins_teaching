@@ -1,2 +1,3 @@
 #this is the configuration file of the plugin
 
+tau = 300 # ms

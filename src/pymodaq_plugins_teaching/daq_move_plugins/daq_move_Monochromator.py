@@ -71,9 +71,8 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         param: Parameter
             A given parameter (within detector_settings) whose value has been changed by the user
         """
-        ## TODO for your custom plugin
-        if param.name() == "a_parameter_you've_added_in_self.params":
-           self.controller.your_method_to_apply_this_param_change()
+        if param.name() == 'tau':
+            self.controller.tau = param.value() / 1000
         else:
             pass
 
@@ -100,7 +99,7 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
             initialized = self.controller.open_communication()
         else:
             initialized = True
-        self.controller.tau = self.settings['tau'] / 1000  # tau in settings in ms but in driver in seconds
+        self.commit_settings(self.settings.child('tau'))  # tau in settings in ms but in driver in seconds
         self.settings.child('infos').setValue(self.controller.infos)
         info = "Successful initialization"
 

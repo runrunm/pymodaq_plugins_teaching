@@ -92,29 +92,13 @@ class DAQ_0DViewer_MonochromatorPhotodiode(DAQ_Viewer_base):
         kwargs: dict
             others optionals arguments
         """
-        ## TODO for your custom plugin: you should choose EITHER the synchrone or the asynchrone version following
-
-        # synchrone version (blocking function)
-        raise NotImplemented  # when writing your own plugin remove this line
-        data_tot = self.controller.your_method_to_start_a_grab_snap()
-        self.dte_signal.emit(DataToExport(name='myplugin',
-                                          data=[DataFromPlugins(name='Mock1', data=data_tot,
-                                                                dim='Data0D', labels=['dat0', 'data1'])]))
-        #########################################################
-
-        # asynchrone version (non-blocking function with callback)
-        raise NotImplemented  # when writing your own plugin remove this line
-        self.controller.your_method_to_start_a_grab_snap(self.callback)  # when writing your own plugin replace this line
-        #########################################################
-
-
-    def callback(self):
-        """optional asynchrone method called when the detector has finished its acquisition of data"""
-        data_tot = self.controller.your_method_to_get_data_from_buffer()
-        self.dte_signal.emit(DataToExport(name='myplugin',
-                                          data=[DataFromPlugins(name='Mock1', data=data_tot,
-                                                                dim='Data0D', labels=['dat0', 'data1'])]))
-
+        data_array = self.controller.grab_monochromator()
+        self.dte_signal.emit(DataToExport(name='MyMonochromator',
+                                          data=[DataFromPlugins(name='Photodiode',
+                                                                data=[data_array],
+                                                                dim='Data0D',
+                                                                labels=['Photodiode'])]))
+        
     def stop(self):
         """Stop the current grab hardware wise if necessary"""
         ## TODO for your custom plugin

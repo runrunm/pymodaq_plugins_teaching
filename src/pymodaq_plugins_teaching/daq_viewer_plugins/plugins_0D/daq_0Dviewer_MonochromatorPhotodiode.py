@@ -4,17 +4,9 @@ from pymodaq.utils.data import DataFromPlugins, DataToExport
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters, main
 from pymodaq.utils.parameter import Parameter
 
+from pymodaq_plugins_teaching.hardware.spectrometer import Spectrometer
 
-class PythonWrapperOfYourInstrument:
-    #  TODO Replace this fake class with the import of the real python wrapper of your instrument
-    pass
 
-# TODO:
-# (1) change the name of the following class to DAQ_0DViewer_TheNameOfYourChoice
-# (2) change the name of this file to daq_0Dviewer_TheNameOfYourChoice ("TheNameOfYourChoice" should be the SAME
-#     for the class name and the file name.)
-# (3) this file should then be put into the right folder, namely IN THE FOLDER OF THE PLUGIN YOU ARE DEVELOPING:
-#     pymodaq_plugins_my_plugin/daq_viewer_plugins/plugins_0D
 class DAQ_0DViewer_MonochromatorPhotodiode(DAQ_Viewer_base):
     """ Instrument plugin class for a OD viewer.
     
@@ -42,12 +34,7 @@ class DAQ_0DViewer_MonochromatorPhotodiode(DAQ_Viewer_base):
         ]
 
     def ini_attributes(self):
-        #  TODO declare the type of the wrapper (and assign it to self.controller) you're going to use for easy
-        #  autocompletion
-        self.controller: PythonWrapperOfYourInstrument = None
-
-        #TODO declare here attributes you want/need to init with a default value
-        pass
+        self.controller: Spectrometer = None
 
     def commit_settings(self, param: Parameter):
         """Apply the consequences of a change of value in the detector settings

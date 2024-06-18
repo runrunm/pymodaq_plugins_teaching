@@ -130,6 +130,8 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         self.target_value = value + self.current_position
         value = self.set_position_relative_with_scaling(value)
         self.controller.set_wavelength(value.value(), set_type='rel')  # when writing your own plugin replace this line
+        # or
+        # self.move_abs(self.target_value)
         self.emit_status(ThreadCommand('Update_Status', ['Doing a relative move']))
 
     def move_home(self):

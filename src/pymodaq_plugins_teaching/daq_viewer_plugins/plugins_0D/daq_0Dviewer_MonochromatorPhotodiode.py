@@ -98,13 +98,11 @@ class DAQ_0DViewer_MonochromatorPhotodiode(DAQ_Viewer_base):
                                                                 data=[data_array],
                                                                 dim='Data0D',
                                                                 labels=['Photodiode'])]))
-        
+
     def stop(self):
         """Stop the current grab hardware wise if necessary"""
-        ## TODO for your custom plugin
-        raise NotImplemented  # when writing your own plugin remove this line
-        self.controller.your_method_to_stop_acquisition()  # when writing your own plugin replace this line
-        self.emit_status(ThreadCommand('Update_Status', ['Some info you want to log']))
+        self.emit_status(ThreadCommand('Update_Status', ['no stopping available, grabbing is '
+                                                         'currently a blocking function']))
         ##############################
         return ''
 

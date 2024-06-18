@@ -15,7 +15,7 @@ class PythonWrapperOfYourInstrument:
 #     for the class name and the file name.)
 # (3) this file should then be put into the right folder, namely IN THE FOLDER OF THE PLUGIN YOU ARE DEVELOPING:
 #     pymodaq_plugins_my_plugin/daq_viewer_plugins/plugins_0D
-class DAQ_0DViewer_Template(DAQ_Viewer_base):
+class DAQ_0DViewer_MonochromatorPhotodiode(DAQ_Viewer_base):
     """ Instrument plugin class for a OD viewer.
     
     This object inherits all functionalities to communicate with PyMoDAQ’s DAQ_Viewer module through inheritance via

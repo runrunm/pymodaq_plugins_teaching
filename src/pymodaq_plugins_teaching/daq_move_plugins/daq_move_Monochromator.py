@@ -104,8 +104,8 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         self.ini_stage_init(old_controller=controller,
                             new_controller=Spectrometer())
 
-        info = "Whatever info you want to log"
-        initialized = self.controller.a_method_or_atttribute_to_check_if_init()  # todo
+        info = "Successful initialization"
+        initialized = self.controller.open_communication()
         return info, initialized
 
     def move_abs(self, value: DataActuator):

@@ -26,7 +26,7 @@ config = Config()
 logger = set_logger(get_module_name(__file__))
 
 
-class CustomAppExample(CustomApp):
+class BeamProfiler(CustomApp):
 
     # list of dicts enabling the settings tree on the user interface
     params = [
@@ -238,7 +238,7 @@ def main():
     dockarea = DockArea()
     mainwindow.setCentralWidget(dockarea)
 
-    prog = CustomAppExample(dockarea)
+    prog = BeamProfiler(dockarea)
 
     mainwindow.show()
     sys.exit(app.exec_())

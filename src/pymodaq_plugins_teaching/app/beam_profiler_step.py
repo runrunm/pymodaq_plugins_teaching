@@ -14,7 +14,7 @@ from qtpy.QtCore import Slot, QDate, QThread
 from pymodaq.utils import daq_utils as utils
 from pymodaq.utils.parameter import ioxml
 from pymodaq.control_modules.daq_viewer import DAQ_Viewer
-from pymodaq.utils.plotting.data_viewers.viewer0D import Viewer0D
+from pymodaq.utils.plotting.data_viewers.viewer2D import Viewer2D
 
 from pymodaq.utils.h5modules.browsing import H5Browser
 from pymodaq.utils.h5modules.saving import H5Saver
@@ -121,8 +121,7 @@ class BeamProfiler(CustomApp):
         logger.debug('connecting done')
 
     def show_detector(self, status):
-        self.dock_detector.setVisible(status)
-        self.dock_detector_settings.setVisible(status)
+        self.daq_viewer_area.setVisible(status)
 
     def setup_menu(self):
         '''
@@ -154,9 +153,12 @@ class BeamProfiler(CustomApp):
 
         logger.debug(f'Value change applied')
 
-    def data_done(self, data):
+    def data_done(self, dte: DataToExport):
         # print(data)
-        pass
+        dte_2D = dte.get_data_from_dim('Data2D')
+        dwa = dte_2D.get_data_from_name('BSCamera')
+
+        self.target_viewer.show_data(dwa)
 
     def show_data(self, data: DataToExport):
         """

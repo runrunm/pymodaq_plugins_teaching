@@ -37,6 +37,8 @@ class BeamProfiler(gutils.CustomApp):
     def __init__(self, dockarea: gutils.DockArea, dashboard):
         super().__init__(dockarea, dashboard)
 
+        self.camera_viewer = self.modules_manager.get_mod_from_name('Camera')
+
         self.setup_ui()
 
     def setup_docks(self):

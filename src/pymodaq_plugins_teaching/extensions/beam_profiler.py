@@ -66,16 +66,6 @@ class BeamProfiler(gutils.CustomApp):
         self.lcd = LCD(QtWidgets.QWidget(), Nvals=5, labels=['X', 'Y', 'dx', 'dy', 'theta'])
         self.docks['lcds'].addWidget(self.lcd.parent)
 
-        cam_window = QtWidgets.QMainWindow()
-        dockarea = gutils.DockArea()
-        cam_window.setCentralWidget(dockarea)
-        self.camera_viewer = DAQ_Viewer(dockarea, title='BSCamera', daq_type='DAQ2D')
-        self.camera_viewer.detector = 'BSCamera'
-        #cam_window.show()
-
-        self.camera_viewer.init_hardware()
-        QtWidgets.QApplication.processEvents()
-
     def setup_actions(self):
         """Method where to create actions to be subclassed. Mandatory
         """

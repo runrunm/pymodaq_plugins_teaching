@@ -19,6 +19,11 @@ logger = set_logger(get_module_name(__file__))
 main_config = Config()
 plugin_config = PluginConfig()
 
+# todo: modify this as you wish
+EXTENSION_NAME = 'Beam Profiler'  # the name that will be displayed in the extension list in the
+# dashboard
+CLASS_NAME = 'BeamProfiler'  # this should be the name of your class defined below
+
 
 # todo: modify the name of this class to reflect its application and change the name in the main
 # method at the end of the script
@@ -29,8 +34,8 @@ class BeamProfiler(gutils.CustomApp):
     # render the widgets in a Qtree. If you wish to see it in your app, add is into a Dock
     params = []
 
-    def __init__(self, parent: gutils.DockArea):
-        super().__init__(parent)
+    def __init__(self, parent: gutils.DockArea, dashboard):
+        super().__init__(parent, dashboard)
 
         self.setup_ui()
 

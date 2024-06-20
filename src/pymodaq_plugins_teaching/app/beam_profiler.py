@@ -7,6 +7,7 @@ from pymodaq.utils.logger import set_logger, get_module_name
 from pymodaq.utils.plotting.data_viewers.viewer2D import Viewer2D
 from pymodaq.utils.gui_utils.widgets.lcd import LCD
 from pymodaq.control_modules.daq_viewer import DAQ_Viewer
+from pymodaq.utils.data import DataToExport
 
 # todo: replace here *pymodaq_plugins_template* by your plugin package name
 from pymodaq_plugins_teaching.utils import Config as PluginConfig
@@ -80,6 +81,13 @@ class BeamProfiler(gutils.CustomApp):
         self.connect_action('grab', self.camera_viewer.grab)
         self.connect_action('quit', self.quit_app)
         self.connect_action('show', self.show_viewer)
+
+        self.camera_viewer.grab_done_signal.connect(self.show_data)
+
+    def show_data(self, dte: DataToExport):
+        dwa2D = dte.get_data_from_dim('Data2D')[0]
+
+        self.target_viewer.show_data(dwa2D)
 
     def show_viewer(self, do_show: bool):
         self.camera_viewer.parent.parent().setVisible(do_show)

@@ -152,18 +152,22 @@ class BeamProfiler(gutils.CustomApp):
 
 def main():
     from pymodaq.utils.gui_utils.utils import mkQApp
-    app = mkQApp('CustomApp')
+    from pymodaq.utils.gui_utils.loader_utils import load_dashboard_with_preset
+    from pymodaq.utils.messenger import messagebox
+    from pymodaq.utils.config import ConfigError
 
-    mainwindow = QtWidgets.QMainWindow()
-    dockarea = gutils.DockArea()
-    mainwindow.setCentralWidget(dockarea)
+    app = mkQApp(EXTENSION_NAME)
+    try:
+        preset_file_name = plugin_config('presets', f'preset_for_{EXTENSION_NAME}')
+        load_dashboard_with_preset(preset_file_name, EXTENSION_NAME)
+        app.exec()
 
-    # todo: change the name here to be the same as your app class
-    prog = BeamProfiler(dockarea)
-
-    mainwindow.show()
-
-    app.exec()
+    except ConfigError as e:
+        messagebox(f'No entry with name f"preset_for_{EXTENSION_NAME}" has been configured'
+                   f'in the plugin config file. The toml entry should be:\n'
+                   f'[presets]'
+                   f"preset_for_{EXTENSION_NAME} = {'a name for an existing preset'}"
+                   )
 
 
 if __name__ == '__main__':

@@ -81,8 +81,9 @@ class BeamProfiler(gutils.CustomApp):
         --------
         ActionManager.add_action
         """
-        pass
-
+        self.add_action('Grab', 'camera', "Grab from camera", checkable=True)
+        self.add_action('Quit', 'close2', "Quit program")
+        
     def connect_things(self):
         """Connect actions and/or other widgets signal to methods"""
         pass

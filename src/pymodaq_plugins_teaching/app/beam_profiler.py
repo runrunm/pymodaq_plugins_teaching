@@ -6,6 +6,7 @@ from pymodaq.utils.logger import set_logger, get_module_name
 
 from pymodaq.utils.plotting.data_viewers.viewer2D import Viewer2D
 from pymodaq.utils.gui_utils.widgets.lcd import LCD
+from pymodaq.control_modules.daq_viewer import DAQ_Viewer
 
 # todo: replace here *pymodaq_plugins_template* by your plugin package name
 from pymodaq_plugins_teaching.utils import Config as PluginConfig
@@ -59,7 +60,8 @@ class BeamProfiler(gutils.CustomApp):
 
         camera_widget = QtWidgets.QWidget()
         self.camera_area = gutils.DockArea(camera_widget)
-        camera_widget.show()
+        self.camera_viewer = DAQ_Viewer(self.camera_area, title='BSCamera', daq_type='DAQ2D')
+        self.camera_viewer.detector = 'BSCamera'
 
     def setup_actions(self):
         """Method where to create actions to be subclassed. Mandatory

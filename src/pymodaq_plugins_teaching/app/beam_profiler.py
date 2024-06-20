@@ -58,10 +58,12 @@ class BeamProfiler(gutils.CustomApp):
         self.lcd = LCD(QtWidgets.QWidget(), Nvals=5, labels=['X', 'Y', 'dx', 'dy', 'theta'])
         self.docks['lcds'].addWidget(self.lcd.parent)
 
-        self.camera_area = gutils.DockArea()
-        self.camera_viewer = DAQ_Viewer(self.camera_area, title='BSCamera', daq_type='DAQ2D')
+        cam_window = QtWidgets.QMainWindow()
+        dockarea = gutils.DockArea()
+        cam_window.setCentralWidget(dockarea)
+        self.camera_viewer = DAQ_Viewer(dockarea, title='BSCamera', daq_type='DAQ2D')
         self.camera_viewer.detector = 'BSCamera'
-        self.camera_area.show()
+        cam_window.show()
 
         self.camera_viewer.init_hardware()
         QtWidgets.QApplication.processEvents()
@@ -78,9 +80,9 @@ class BeamProfiler(gutils.CustomApp):
         self.connect_action('quit', self.quit_app)
 
     def quit_app(self):
-        self.parent.parent().close()
         self.camera_viewer.quit_fun()
-        self.camera_area.parent().close()
+        self.camera_viewer.dockarea.parent().close()
+        self.mainwindow.close()
 
     def setup_menu(self):
         """Non mandatory method to be subclassed in order to create a menubar

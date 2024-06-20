@@ -4,6 +4,9 @@ from pymodaq.utils import gui_utils as gutils
 from pymodaq.utils.config import Config
 from pymodaq.utils.logger import set_logger, get_module_name
 
+from pymodaq.utils.plotting.data_viewers.viewer2D import Viewer2D
+from pymodaq.utils.gui_utils.widgets.lcd import LCD
+
 # todo: replace here *pymodaq_plugins_template* by your plugin package name
 from pymodaq_plugins_teaching.utils import Config as PluginConfig
 
@@ -46,6 +49,8 @@ class BeamProfiler(gutils.CustomApp):
         # If you wish to see it in your app, add is into a Dock
         self.docks['viewer2D'] = gutils.Dock('Camera Data')
         self.dockarea.addDock(self.docks['viewer2D'])
+        self.target_viewer = Viewer2D(QtWidgets.QWidget())
+        self.docks['viewer2D'].addWidget(self.target_viewer.parent)
 
         self.docks['lcds'] = gutils.Dock('Beam properties')
         self.dockarea.addDock(self.docks['lcds'], 'right', self.docks['viewer2D'])

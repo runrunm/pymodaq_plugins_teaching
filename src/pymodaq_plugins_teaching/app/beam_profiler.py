@@ -54,6 +54,8 @@ class BeamProfiler(gutils.CustomApp):
 
         self.docks['lcds'] = gutils.Dock('Beam properties')
         self.dockarea.addDock(self.docks['lcds'], 'right', self.docks['viewer2D'])
+        self.lcd = LCD(QtWidgets.QWidget(), Nvals=5, labels=['X', 'Y', 'dx', 'dy', 'theta'])
+        self.docks['lcds'].addWidget(self.lcd.parent)
 
         camera_widget = QtWidgets.QWidget()
         self.camera_area = gutils.DockArea(camera_widget)

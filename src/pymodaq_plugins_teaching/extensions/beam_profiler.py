@@ -68,6 +68,8 @@ class BeamProfiler(gutils.CustomApp):
         self.lcd = LCD(QtWidgets.QWidget(), Nvals=5, labels=['X', 'Y', 'dx', 'dy', 'theta'])
         self.docks['lcds'].addWidget(self.lcd.parent)
 
+        self.dashboard.mainwindow.setVisible(False)
+
     def setup_actions(self):
         """Method where to create actions to be subclassed. Mandatory
         """

@@ -63,7 +63,7 @@ class BeamProfiler(gutils.CustomApp):
         cam_window.setCentralWidget(dockarea)
         self.camera_viewer = DAQ_Viewer(dockarea, title='BSCamera', daq_type='DAQ2D')
         self.camera_viewer.detector = 'BSCamera'
-        cam_window.show()
+        #cam_window.show()
 
         self.camera_viewer.init_hardware()
         QtWidgets.QApplication.processEvents()
@@ -73,11 +73,16 @@ class BeamProfiler(gutils.CustomApp):
         """
         self.add_action('grab', 'Grab', 'camera', "Grab from camera", checkable=True)
         self.add_action('quit', 'Quit', 'close2', "Quit program")
+        self.add_action('show', 'Show/hide', 'read2', "Show Hide DAQViewer", checkable=True)
 
     def connect_things(self):
         """Connect actions and/or other widgets signal to methods"""
         self.connect_action('grab', self.camera_viewer.grab)
         self.connect_action('quit', self.quit_app)
+        self.connect_action('show', self.show_viewer)
+
+    def show_viewer(self, do_show: bool):
+        self.camera_viewer.parent.parent().setVisible(do_show)
 
     def quit_app(self):
         self.camera_viewer.quit_fun()

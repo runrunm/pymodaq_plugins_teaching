@@ -1,4 +1,5 @@
 from qtpy import QtWidgets
+import numpy as np
 
 from pymodaq.utils import gui_utils as gutils
 from pymodaq.utils.config import Config
@@ -11,6 +12,7 @@ from pymodaq.utils.data import DataToExport
 
 # todo: replace here *pymodaq_plugins_template* by your plugin package name
 from pymodaq_plugins_teaching.utils import Config as PluginConfig
+import laserbeamsize as lbs
 
 logger = set_logger(get_module_name(__file__))
 
@@ -85,9 +87,13 @@ class BeamProfiler(gutils.CustomApp):
         self.camera_viewer.grab_done_signal.connect(self.show_data)
 
     def show_data(self, dte: DataToExport):
-        dwa2D = dte.get_data_from_dim('Data2D')[0]
+        dte_raw = dte.get_data_from_source('raw')  # to avoid selecting a 2D ROI
+        dwa2D = dte_raw.get_data_from_dim('Data2D')[0]  #take the first 2D dwa
+
+        values = [np.array([val]) for val in lbs.beam_size(dwa2D[0])]
 
         self.target_viewer.show_data(dwa2D)
+        self.lcd.setvalues(values)
 
     def show_viewer(self, do_show: bool):
         self.camera_viewer.parent.parent().setVisible(do_show)

@@ -34,8 +34,8 @@ class BeamProfiler(gutils.CustomApp):
     # render the widgets in a Qtree. If you wish to see it in your app, add is into a Dock
     params = []
 
-    def __init__(self, parent: gutils.DockArea, dashboard):
-        super().__init__(parent, dashboard)
+    def __init__(self, dockarea: gutils.DockArea, dashboard):
+        super().__init__(dockarea, dashboard)
 
         self.setup_ui()
 
@@ -158,15 +158,15 @@ def main():
 
     app = mkQApp(EXTENSION_NAME)
     try:
-        preset_file_name = plugin_config('presets', f'preset_for_{EXTENSION_NAME}')
+        preset_file_name = plugin_config('presets', f'preset_for_{CLASS_NAME.lower()}')
         load_dashboard_with_preset(preset_file_name, EXTENSION_NAME)
         app.exec()
 
     except ConfigError as e:
-        messagebox(f'No entry with name f"preset_for_{EXTENSION_NAME}" has been configured'
+        messagebox(f'No entry with name f"preset_for_{CLASS_NAME.lower()}" has been configured'
                    f'in the plugin config file. The toml entry should be:\n'
                    f'[presets]'
-                   f"preset_for_{EXTENSION_NAME} = {'a name for an existing preset'}"
+                   f"preset_for_{CLASS_NAME.lower()} = {'a name for an existing preset'}"
                    )
 
 

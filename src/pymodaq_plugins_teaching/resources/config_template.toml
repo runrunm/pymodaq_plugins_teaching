@@ -1,2 +1,4 @@
 #this is the configuration file of the plugin
 
+[presets]
+preset_for_beamprofiler = 'beam_steering_mock'

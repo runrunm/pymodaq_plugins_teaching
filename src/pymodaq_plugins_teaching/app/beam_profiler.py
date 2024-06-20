@@ -122,7 +122,11 @@ class BeamProfiler(gutils.CustomApp):
         pymodaq.utils.managers.action_manager.ActionManager
         """
         # todo create and populate menu using actions defined above in self.setup_actions
-        pass
+        file_menu = self.mainwindow.menuBar().addMenu('File')
+        action_menu = self.mainwindow.menuBar().addMenu('Actions')
+        self.affect_to('quit', file_menu)
+        self.affect_to('grab', action_menu)
+        self.affect_to('show', action_menu)
 
     def value_changed(self, param):
         """ Actions to perform when one of the param's value in self.settings is changed from the

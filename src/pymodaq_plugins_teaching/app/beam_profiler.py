@@ -78,7 +78,9 @@ class BeamProfiler(gutils.CustomApp):
         self.connect_action('quit', self.quit_app)
 
     def quit_app(self):
-        pass
+        self.parent.parent().close()
+        self.camera_viewer.quit_fun()
+        self.camera_area.parent().close()
 
     def setup_menu(self):
         """Non mandatory method to be subclassed in order to create a menubar

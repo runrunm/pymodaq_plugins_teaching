@@ -44,7 +44,15 @@ class BeamProfiler(gutils.CustomApp):
         # todo: create docks and add them here to hold your widgets
         # reminder, the attribute self.settings_tree will  render the widgets in a Qtree.
         # If you wish to see it in your app, add is into a Dock
-        raise NotImplementedError
+        self.docks['viewer2D'] = gutils.Dock('Camera Data')
+        self.dockarea.addDock(self.docks['viewer2D'])
+
+        self.docks['lcds'] = gutils.Dock('Beam properties')
+        self.dockarea.addDock(self.docks['lcds'], 'right', self.docks['viewer2D'])
+
+        camera_widget = QtWidgets.QWidget()
+        self.camera_area = gutils.DockArea(camera_widget)
+        camera_widget.show()
 
     def setup_actions(self):
         """Method where to create actions to be subclassed. Mandatory
@@ -61,11 +69,11 @@ class BeamProfiler(gutils.CustomApp):
         --------
         ActionManager.add_action
         """
-        raise NotImplementedError(f'You have to define actions here')
+        pass
 
     def connect_things(self):
         """Connect actions and/or other widgets signal to methods"""
-        raise NotImplementedError
+        pass
 
     def setup_menu(self):
         """Non mandatory method to be subclassed in order to create a menubar

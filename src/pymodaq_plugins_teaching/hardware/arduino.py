@@ -54,24 +54,23 @@ class Arduino:
         value = self.round_value(value)
         self.pin_values_output[pin] = value
 
-    def generate_spectrum(self) -> DataRaw:
-        """ Grab a spectrum revealing the content of the RGB LED"""
-        axis = Axis('wavelength', units='m', data=np.linspace(400, 800, SIZE, endpoint=True) * 1e-9)
+    def get_spectrometer_axis(self) -> np.ndarray:
+        return np.linspace(400, 800, SIZE, endpoint=True)
 
+    def generate_spectrum(self) -> np.ndarray:
+        """ Grab a spectrum revealing the content of the RGB LED"""
+
+        axis = self.get_spectrometer_axis()
         data_array = np.zeros((SIZE,))
         if self.pin_values_output[self.servo_pin] > 70:
-            data_array += (gauss1D(axis.get_data(), LAMBDA_RED, 15) *
+            data_array += (gauss1D(axis, LAMBDA_RED, 15) *
                            self.pin_values_output[self.led_pins['red']])
-            data_array += (gauss1D(axis.get_data(), LAMBDA_GREEN, 12) *
+            data_array += (gauss1D(axis, LAMBDA_GREEN, 12) *
                            self.pin_values_output[self.led_pins['green']])
-            data_array += (gauss1D(axis.get_data(), LAMBDA_BLUE, 15) *
+            data_array += (gauss1D(axis, LAMBDA_BLUE, 15) *
                            self.pin_values_output[self.led_pins['blue']])
 
-        return DataRaw('Spectrum',
-                       data=[data_array],
-                       axes=[axis],
-                       labels=['Spectrum'],
-                       units='count')
+        return data_array
 
     def close(self):
         pass

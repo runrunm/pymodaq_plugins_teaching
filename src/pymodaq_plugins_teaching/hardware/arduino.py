@@ -42,7 +42,7 @@ class Arduino:
         value = self.pin_values_output.get(pin, 0)
         return value
 
-    def analog_write(self, pin: int, value: int):
+    def analog_write(self, pin: int, value: numbers.Number):
         """fake method mimicking the telemetrix library
         to set a voltage to a given pin using PWM"""
         value = self.round_value(value)
@@ -72,3 +72,6 @@ class Arduino:
                        axes=[axis],
                        labels=['Spectrum'],
                        units='count')
+
+    def close(self):
+        pass

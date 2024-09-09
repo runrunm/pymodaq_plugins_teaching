@@ -1,18 +1,12 @@
 import numbers
-from pyvisa import ResourceManager
+
 
 from pymodaq.utils.data import DataRaw, Axis
 from pymodaq.utils.math_utils import np, gauss1D
 
 
-VISA_rm = ResourceManager()
-
 COM_PORTS = []
-for name, rinfo in VISA_rm.list_resources_info().items():
-    if rinfo.alias is not None:
-        COM_PORTS.append(rinfo.alias)
-    else:
-        COM_PORTS.append(name)
+
 
 SIZE = 256
 LAMBDA_RED = 650

@@ -37,6 +37,10 @@ class Spectrometer:
 
         self._lambda0 = 528
 
+    @classmethod
+    def get_serial(cls):
+        return "V12.5.8"
+
     def open_communication(self):
         return True
 

@@ -163,7 +163,7 @@ class Spectrometer:
             raise ValueError('Wavelength cannot be negative')
         self._lambda0 = lambda0
 
-    def _set_data_response(self, lambda_axis: Union[float, Iterable] = 515) -> np.ndarray:
+    def _set_data_response(self, lambda_axis: Union[float, Iterable] = 515.) -> np.ndarray:
         """Defines the wavelength response of the physical process measured by our spectrometer
 
         Parameters
@@ -183,7 +183,7 @@ class Spectrometer:
                 if not isinstance(lambda_axis[0], Number):
                     raise TypeError('lambda_axis should be an iterable of float')
 
-        return self._amp * gauss1D(lambda_axis, self._lambda0, self._wh) + self._noise * np.random.rand(len(lambda_axis))
+        return self._amp * gauss1D(lambda_axis, self._lambda0, self._wh * (1 + self._amp/10)) + self._noise * np.random.rand(len(lambda_axis))
 
     def _get_data_0D(self, data=None):
         """Get the data at the central wavelength of the spectrometer"""

@@ -30,9 +30,9 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
     # TODO add your particular attributes here if any
 
     """
-    _controller_units = 'whatever'  # TODO for your plugin: put the correct unit here
+    _controller_units = 'm'  # TODO for your plugin: put the correct unit here
     is_multiaxes = False  # TODO for your plugin set to True if this plugin is controlled for a multiaxis controller
-    _axis_names = ['Axis1', 'Axis2']  # TODO for your plugin: complete the list
+    _axis_names = ['']  # TODO for your plugin: complete the list
     _epsilon = 0.1  # TODO replace this by a value that is correct depending on your controller
     data_actuator_type = DataActuatorType['DataActuator']  # wether you use the new data style for actuator otherwise set this
     # as  DataActuatorType['float']  (or entirely remove the line)
@@ -57,7 +57,8 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         -------
         float: The position obtained after scaling conversion.
         """
-        pos = DataActuator(data=self.controller.get_wavelength())  # when writing your own plugin replace this line
+        pos = DataActuator(data=self.controller.get_wavelength(),
+                           units='nm')  # when writing your own plugin replace this line
         pos = self.get_position_with_scaling(pos)
         return pos
 
@@ -119,7 +120,7 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         value = self.check_bound(value)  #if user checked bounds, the defined bounds are applied here
         self.target_value = value
         value = self.set_position_with_scaling(value)  # apply scaling if the user specified one
-        self.controller.set_wavelength(value.value())  # when writing your own plugin replace this line
+        self.controller.set_wavelength(value.value('nm'))  # when writing your own plugin replace this line
         self.emit_status(ThreadCommand('Update_Status', ['doing an absolute move']))
 
     def move_rel(self, value: DataActuator):
@@ -132,7 +133,7 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         value = self.check_bound(self.current_position + value) - self.current_position
         self.target_value = value + self.current_position
         value = self.set_position_relative_with_scaling(value)
-        self.controller.set_wavelength(value.value(), set_type='rel')  # when writing your own plugin replace this line
+        self.controller.set_wavelength(value.value('nm'), set_type='rel')  # when writing your own plugin replace this line
         # or
         # self.move_abs(self.target_value)
         self.emit_status(ThreadCommand('Update_Status', ['Doing a relative move']))

@@ -1,6 +1,6 @@
 import numpy as np
 from pymodaq.utils.daq_utils import ThreadCommand
-from pymodaq.utils.data import DataFromPlugins, DataToExport
+from pymodaq.utils.data import DataFromPlugins, DataToExport, Axis
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters, main
 from pymodaq.utils.parameter import Parameter
 
@@ -91,12 +91,16 @@ class DAQ_1DViewer_Spectrometer(DAQ_Viewer_base):
         kwargs: dict
             others optionals arguments
         """
-        data_array = self.controller.grab_monochromator()
-        self.dte_signal.emit(DataToExport(name='MyMonochromator',
-                                          data=[DataFromPlugins(name='Photodiode',
-                                                                data=[data_array],
-                                                                dim='Data0D',
-                                                                labels=['Photodiode'])]))
+        data_array = self.controller.grab_spectrum()
+        self.dte_signal.emit(
+            DataToExport(name='MyMonochromator',
+                         data=[
+                             DataFromPlugins(name='Spectrum',
+                                             data=[data_array],
+                                             dim='Data1D',
+                                             labels=['Spectrum'],
+                                             axes=[Axis('wavelength', units='m',
+                                                        data=self.controller.get_wavelength_axis() * 1e-9)])]))
 
     def stop(self):
         """Stop the current grab hardware wise if necessary"""

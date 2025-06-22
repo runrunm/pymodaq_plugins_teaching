@@ -1,4 +1,6 @@
 import numpy as np
+
+
 from pymodaq.utils.math_utils import gauss1D
 from typing import List, Union
 from collections.abc import Iterable
@@ -183,7 +185,9 @@ class Spectrometer:
                 if not isinstance(lambda_axis[0], Number):
                     raise TypeError('lambda_axis should be an iterable of float')
 
-        return self._amp * gauss1D(lambda_axis, self._lambda0, self._wh * (1 + self._amp/10)) + self._noise * np.random.rand(len(lambda_axis))
+        return (self._amp * gauss1D(lambda_axis, self._lambda0, self._wh * (1 + self._amp/10))
+                * (1+0.5 * np.sin(self._amp/10) * np.sin((lambda_axis-self._lambda0) / (self._wh)))
+                + self._noise * np.random.rand(len(lambda_axis)))
 
     def _get_data_0D(self, data=None):
         """Get the data at the central wavelength of the spectrometer"""

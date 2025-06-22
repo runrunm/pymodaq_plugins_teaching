@@ -99,7 +99,7 @@ class DAQ_Move_Power(DAQ_Move_base):
         else:
             self.controller = controller
 
-        self.controller.amplitude = 1.0
+        self.controller.amplitude = 5.0
 
         info = "Power control OK"
         initialized = True

@@ -65,12 +65,11 @@ class DAQ_1DViewer_Spectrometer(DAQ_Viewer_base):
         initialized: bool
             False if initialization failed otherwise True
         """
-
-        self.ini_detector_init(old_controller=controller,
-                               new_controller=Spectrometer())
         if self.is_master:
+            self.controller = Spectrometer()
             initialized = self.controller.open_communication()
         else:
+            self.controller = controller
             initialized = True
 
         info = "Whatever info you want to log"

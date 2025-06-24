@@ -7,10 +7,7 @@ from pymodaq_gui.parameter import Parameter
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters, main
 from pymodaq.utils.data import DataFromPlugins
 
-
-class PythonWrapperOfYourInstrument:
-    #  TODO Replace this fake class with the import of the real python wrapper of your instrument
-    pass
+from pymodaq_plugins_teaching.hardware.spectrometer import Spectrometer
 
 # TODO:
 # (1) change the name of the following class to DAQ_1DViewer_TheNameOfYourChoice
@@ -20,7 +17,7 @@ class PythonWrapperOfYourInstrument:
 #     pymodaq_plugins_my_plugin/daq_viewer_plugins/plugins_1D
 
 
-class DAQ_1DViewer_Template(DAQ_Viewer_base):
+class DAQ_1DViewer_Spectro(DAQ_Viewer_base):
     """ Instrument plugin class for a 1D viewer.
     
     This object inherits all functionalities to communicate with PyMoDAQ’s DAQ_Viewer module through inheritance via
@@ -51,7 +48,7 @@ class DAQ_1DViewer_Template(DAQ_Viewer_base):
     def ini_attributes(self):
         #  TODO declare the type of the wrapper (and assign it to self.controller) you're going to use for easy
         #  autocompletion
-        self.controller: PythonWrapperOfYourInstrument = None
+        self.controller: Spectrometer = None
 
         # TODO declare here attributes you want/need to init with a default value
 
@@ -87,7 +84,6 @@ class DAQ_1DViewer_Template(DAQ_Viewer_base):
             False if initialization failed otherwise True
         """
 
-        raise NotImplemented  # TODO when writing your own plugin remove this line and modify the one below
         self.ini_detector_init(slave_controller=controller)
 
         if self.is_master:
@@ -99,19 +95,18 @@ class DAQ_1DViewer_Template(DAQ_Viewer_base):
 
         ## TODO for your custom plugin
         # get the x_axis (you may want to to this also in the commit settings if x_axis may have changed
-        data_x_axis = self.controller.your_method_to_get_the_x_axis()  # if possible
-        self.x_axis = Axis(data=data_x_axis, label='', units='', index=0)
+        data_x_axis = self.controller.get_wavelength_axis()  # if possible
+        self.x_axis = Axis(data=data_x_axis, label='wl_axis', units='m', index=0)
 
         # TODO for your custom plugin. Initialize viewers pannel with the future type of data
-        self.dte_signal_temp.emit(DataToExport(name='myplugin',
-                                               data=[DataFromPlugins(name='Mock1',
-                                                                     data=[np.array([0., 0., ...]),
-                                                                           np.array([0., 0., ...])],
-                                                                     dim='Data1D', labels=['Mock1', 'label2'],
+        self.dte_signal_temp.emit(DataToExport(name='spectro_temp',
+                                               data=[DataFromPlugins(name='Spectro_temp',
+                                                                     data=[np.array([0 for _ in range(256)])],
+                                                                     dim='Data1D', labels=['data_temp'],
                                                                      axes=[self.x_axis])]))
 
         info = "Whatever info you want to log"
-        initialized = True
+
         return info, initialized
 
     def close(self):
@@ -130,32 +125,22 @@ class DAQ_1DViewer_Template(DAQ_Viewer_base):
         kwargs: dict
             others optionals arguments
         """
-        ## TODO for your custom plugin: you should choose EITHER the synchrone or the asynchrone version following
+        ## TODO for your custom plugin: you should choose EITHER the synchron or the asynchron version following
 
         ##synchrone version (blocking function)
-        data_tot = self.controller.your_method_to_start_a_grab_snap()
-        self.dte_signal.emit(DataToExport('myplugin',
-                                          data=[DataFromPlugins(name='Mock1', data=data_tot,
-                                                                dim='Data1D', labels=['dat0', 'data1'],
+        data_tot = self.controller.grab_spectrum()
+        self.dte_signal.emit(DataToExport('spectro',
+                                          data=[DataFromPlugins(name='Spectro', data=data_tot,
+                                                                dim='Data1D', labels=['data'],
                                                                 axes=[self.x_axis])]))
 
-        ##asynchrone version (non-blocking function with callback)
-        self.controller.your_method_to_start_a_grab_snap(self.callback)
-        #########################################################
-
-
-    def callback(self):
-        """optional asynchrone method called when the detector has finished its acquisition of data"""
-        data_tot = self.controller.your_method_to_get_data_from_buffer()
-        self.dte_signal.emit(DataToExport('myplugin',
-                                          data=[DataFromPlugins(name='Mock1', data=data_tot,
-                                                                dim='Data1D', labels=['dat0', 'data1'])]))
+        data_x_axis = self.controller.get_wavelength_axis()*1e-9  # if possible
+        self.x_axis = Axis(data=data_x_axis, label='wl_axis', units='m', index=0)
 
     def stop(self):
         """Stop the current grab hardware wise if necessary"""
         ## TODO for your custom plugin
-        raise NotImplemented  # when writing your own plugin remove this line
-        self.controller.your_method_to_stop_acquisition()  # when writing your own plugin replace this line
+        self.controller.stop()  # when writing your own plugin replace this line
         self.emit_status(ThreadCommand('Update_Status', ['Some info you want to log']))
         ##############################
         return ''

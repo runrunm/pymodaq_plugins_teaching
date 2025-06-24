@@ -1,2 +1,5 @@
 #this is the configuration file of the plugin
 
+[defaults]
+red = '300 nm'
+green = '600 nm'

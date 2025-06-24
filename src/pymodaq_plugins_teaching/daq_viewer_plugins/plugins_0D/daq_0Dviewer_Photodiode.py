@@ -105,7 +105,8 @@ class DAQ_0DViewer_Photodiode(DAQ_Viewer_base):
 
     def close(self):
         """Terminate the communication protocol"""
-        self.controller.close_communication()  # when writing your own plugin replace this line
+        if self.is_master:  # To specify for avoiding slave closing connection issue
+            self.controller.close_communication()  # when writing your own plugin replace this line
 
     def grab_data(self, Naverage=1, **kwargs):
         """Start a grab from the detector

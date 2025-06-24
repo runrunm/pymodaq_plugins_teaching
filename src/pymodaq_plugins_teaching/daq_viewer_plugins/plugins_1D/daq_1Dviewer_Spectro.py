@@ -91,8 +91,11 @@ class DAQ_1DViewer_Template(DAQ_Viewer_base):
         self.ini_detector_init(slave_controller=controller)
 
         if self.is_master:
-            self.controller = PythonWrapperOfYourInstrument()  #instantiate you driver with whatever arguments are needed
-            self.controller.open_communication() # call eventual methods
+            self.controller = Spectrometer()  #instantiate you driver with whatever arguments are needed
+            initialized = self.controller.open_communication() # call eventual methods
+        else:
+            self.controller = controller
+            initialized = True
 
         ## TODO for your custom plugin
         # get the x_axis (you may want to to this also in the commit settings if x_axis may have changed
@@ -113,9 +116,8 @@ class DAQ_1DViewer_Template(DAQ_Viewer_base):
 
     def close(self):
         """Terminate the communication protocol"""
-        ## TODO for your custom plugin
-        raise NotImplemented  # when writing your own plugin remove this line
-        #  self.controller.your_method_to_terminate_the_communication()  # when writing your own plugin replace this line
+        if self.is_master:  # To specify for avoiding slave closing connection issue
+            self.controller.close_communication()  # when writing your own plugin replace this line
 
     def grab_data(self, Naverage=1, **kwargs):
         """Start a grab from the detector

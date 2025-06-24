@@ -86,9 +86,9 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         bool: if True, PyMoDAQ considers the target value has been reached
         """
         # TODO either delete this method if the usual polling is fine with you, but if need you can
-        #  add here some other condition to be fullfilled either a completely new one or
+        #  add here some other condition to be fulfilled either a completely new one or
         #  using or/and operations between the epsilon_bool and some other custom booleans
-        #  for a usage example see DAQ_Move_brushlessMotor from the Thorlabs plugin
+        #  for a usage example see DAQ_Move_brushlessMotor from the ThorLabs plugin
         return True
 
     def close(self):
@@ -128,7 +128,7 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         self.ini_stage_init(slave_controller=controller)  # will be useful when controller is slave
 
         if self.is_master:  # is needed when controller is master
-            self.controller = Spectrometer()  # arguments for instantiation!)
+            self.controller = Spectrometer()  # arguments for instantiation
 
         info = "Whatever info you want to log"
         initialized = self.controller.open_communication()

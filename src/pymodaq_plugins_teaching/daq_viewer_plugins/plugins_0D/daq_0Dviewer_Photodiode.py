@@ -86,11 +86,11 @@ class DAQ_0DViewer_Photodiode(DAQ_Viewer_base):
             self.controller = Spectrometer()  #instantiate you driver with whatever arguments are needed
 
         # TODO for your custom plugin (optional) initialize viewers panel with the future type of data
-        self.dte_signal_temp.emit(DataToExport(name='photodiode',  # Used for initial display of data with right shape
-                                               data=[DataFromPlugins(name='Photodiode',
+        self.dte_signal_temp.emit(DataToExport(name='photodiode_temp',  # Used for initial display of data with right shape
+                                               data=[DataFromPlugins(name='Photodiode_temp',
                                                                     data=[np.array([0])],  # has to be a list
                                                                     dim='Data0D',  # optional
-                                                                    labels=['Photodiode'])]))
+                                                                    labels=['Photodiode_temp'])]))
 
         info = "Whatever info you want to log"
         initialized = self.controller.open_communication()
@@ -116,8 +116,8 @@ class DAQ_0DViewer_Photodiode(DAQ_Viewer_base):
         # synchron version (blocking function)
         data_tot = self.controller.grab_monochromator()
         self.dte_signal.emit(DataToExport(name='photodiode',
-                                          data=[DataFromPlugins(name='Photodiode', data=data_tot,
-                                                                dim='Data0D', labels=['dat0'])]))
+                                          data=[DataFromPlugins(name='Photodiode', data=[data_tot],
+                                                                dim='Data0D', labels=['Photodiode'])]))
 
     #
     # def callback(self):

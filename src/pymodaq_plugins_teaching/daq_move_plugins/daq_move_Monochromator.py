@@ -105,8 +105,7 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         """
 
         if param.name() == "grating":
-            if param.value() == Spectrometer.gratings[0]:
-                self.settings.child("grating").setValue(self.controller.grating)
+            self.controller.grating = param.value()
         else:
             pass
 
@@ -170,8 +169,7 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
     def move_home(self):
         """Call the reference method of the controller"""
 
-        ## TODO for your custom plugin
-        self.controller.set_wavelength(DataActuator('name', 532, 'nm'))  # when writing your own plugin replace this line
+        self.controller.find_reference()
         self.emit_status(ThreadCommand('Update_Status', ['Some info you want to log']))
 
     def stop_motion(self):

@@ -5,12 +5,12 @@ from pymodaq_data.data import DataToExport
 from pymodaq_gui.parameter import Parameter
 
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters, main
-from pymodaq.utils.data import DataFromPlugins
+from pymodaq.utils.data import DataFromPlugins, Axis
 
 from pymodaq_plugins_teaching.hardware.spectrometer import Spectrometer
 
 
-class DAQ_0DViewer_Photodiode(DAQ_Viewer_base):
+class DAQ_1DViewer_Spectrum(DAQ_Viewer_base):
     """ Instrument plugin class for a OD viewer.
     
     This object inherits all functionalities to communicate with PyMoDAQ’s DAQ_Viewer module through inheritance via
@@ -105,8 +105,11 @@ class DAQ_0DViewer_Photodiode(DAQ_Viewer_base):
         ## TODO for your custom plugin: you should choose EITHER the synchrone or the asynchrone version following
         self.dte_signal.emit(DataToExport(
             name='mydte',
-            data=[DataFromPlugins(name='mymock', data=[self.controller.grab_monochromator()],
-                                  dim='Data0D', labels=['label00',])]))
+            data=[DataFromPlugins(name='mymock',
+                                  data=[self.controller.grab_spectrum()],
+                                  dim='Data1D', labels=['label00',],
+                                  axes=[Axis('Wavelength', units='m',
+                                             data=self.controller.get_wavelength_axis()*1e-9)])]))
 
     def stop(self):
         """Stop the current grab hardware wise if necessary"""

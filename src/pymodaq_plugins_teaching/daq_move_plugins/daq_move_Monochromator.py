@@ -5,16 +5,10 @@ from pymodaq.control_modules.move_utility_classes import (DAQ_Move_base, comon_p
 
 from pymodaq_utils.utils import ThreadCommand  # object used to send info back to the main thread
 from pymodaq_gui.parameter import Parameter
-from pymodaq_data import Q_
-from pymodaq.control_modules.thread_commands import ThreadStatus
+
 from pymodaq_plugins_teaching.hardware.spectrometer import Spectrometer
 
-# TODO:
-# (1) change the name of the following class to DAQ_Move_TheNameOfYourChoice
-# (2) change the name of this file to daq_move_TheNameOfYourChoice ("TheNameOfYourChoice" should be the SAME
-#     for the class name and the file name.)
-# (3) this file should then be put into the right folder, namely IN THE FOLDER OF THE PLUGIN YOU ARE DEVELOPING:
-#     pymodaq_plugins_my_plugin/daq_move_plugins
+
 class DAQ_Move_Monochromator(DAQ_Move_base):
     """ Instrument plugin class for an actuator.
     
@@ -91,7 +85,8 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
     def close(self):
         """Terminate the communication protocol"""
         ## TODO for your custom plugin
-        self.controller.close_communication()  # when writing your own plugin remove this line
+        if self.is_master:
+            self.controller.close_communication()  # when writing your own plugin remove this line
         #  self.controller.your_method_to_terminate_the_communication()  # when writing your own plugin replace this line
 
     def commit_settings(self, param: Parameter):
@@ -134,14 +129,15 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         """
         if self.is_master:  # is needed when controller is master
             self.controller = Spectrometer() #  arguments for instantiation!)
-            # todo: enter here whatever is needed for your controller initialization and eventual
-            #  opening of the communication channel
+            initialized = self.controller.open_communication()  # todo
+
+        else:
+            self.controller = controller
+            initialized = True
 
         info = "Whatever info you want to log"
-        initialized = self.controller.open_communication()  # todo
+
         self.settings.child('info').setValue(self.controller.infos)
-        self.emit_status(ThreadCommand(ThreadStatus.UPDATE_UI, 'set_abs_value_green', args=(Q_('300nm'),)))
-        self.emit_status(ThreadCommand(ThreadStatus.UPDATE_UI, 'set_abs_value_red', args=(Q_('600nm'),)))
         return info, initialized
 
     def move_abs(self, value: DataActuator):

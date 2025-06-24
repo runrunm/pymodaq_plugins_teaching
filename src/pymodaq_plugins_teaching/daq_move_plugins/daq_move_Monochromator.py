@@ -6,6 +6,8 @@ from pymodaq_utils.utils import ThreadCommand  # object used to send info back t
 from pymodaq_gui.parameter import Parameter
 
 from pymodaq_plugins_teaching.hardware.spectrometer import Spectrometer
+# from pymodaq_data import Q_
+# from pymodaq.control_modules.thread_commands import ThreadStatus
 
 
 # TODO:
@@ -132,6 +134,9 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         initialized = self.controller.open_communication()
 
         self.settings.child('info').setValue(self.controller.infos)
+
+        # A checker pour changer les valeurs initiales des boites verte et rouge (move_abs)
+        # self.emit_status(ThreadCommand(ThreadStatus.UPDATE_UI, 'set_abs_value_green', args=(Q_('300 nm'), ))
 
         return info, initialized
 

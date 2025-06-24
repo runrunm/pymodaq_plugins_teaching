@@ -38,6 +38,9 @@ class DAQ_0DViewer_Photodiode(DAQ_Viewer_base):
     # TODO add your particular attributes here if any
 
     """
+
+    # live_mode_available = True  # Handle grab directly within plugin and not through GUI
+
     params = comon_parameters+[
         ## TODO for your custom plugin: elements to be added here as dicts in order to control your custom stage
         ]
@@ -98,7 +101,6 @@ class DAQ_0DViewer_Photodiode(DAQ_Viewer_base):
                                                                     labels=['Photodiode_temp'])]))
 
         info = "Whatever info you want to log"
-        initialized = self.controller.open_communication()
         return info, initialized
 
     def close(self):

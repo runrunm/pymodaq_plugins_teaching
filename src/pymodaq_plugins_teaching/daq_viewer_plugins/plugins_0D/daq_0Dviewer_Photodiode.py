@@ -82,8 +82,13 @@ class DAQ_0DViewer_Photodiode(DAQ_Viewer_base):
 
         self.ini_detector_init(slave_controller=controller)
 
-        if self.is_master:
+        if self.is_master:  # Master and slave controller ID are identical
             self.controller = Spectrometer()  #instantiate you driver with whatever arguments are needed
+            initialized = self.controller.open_communication()
+
+        else:
+            self.controller = controller
+            initialized = True
 
         # TODO for your custom plugin (optional) initialize viewers panel with the future type of data
         self.dte_signal_temp.emit(DataToExport(name='photodiode_temp',  # Used for initial display of data with right shape

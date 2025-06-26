@@ -71,20 +71,20 @@ class Generator():
         if phase.is_compatible_with('rad'):
             self._phase = phase.to('rad')
 
-    def get_waveform(self, Npts: int, dt: float):
+    def get_waveform(self, Npts: int, dt: Q_):
         """ Generate a waveform given the number of points and time resolution
 
         Parameters
         ----------
         Npts: The number of points in the waveform
-        dt: the time resolution
+        dt: the time resolution as a quantity
 
         Returns
         -------
         np.ndarray: 1D array containing the time
         np.ndarray: 1D Quantity array containing the waveform
         """
-        time_array = linspace_step_N(0., dt, Npts)
+        time_array = linspace_step_N(Q_(0., 's'), dt, Npts)
 
         if self._wave_type == WaveType.SINUS:
             return time_array, self.amplitude * np.sin(self.frequency * time_array - self.phase) + self.offset

@@ -7,7 +7,7 @@ from pymodaq_gui.parameter import Parameter
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters, main
 from pymodaq.utils.data import DataFromPlugins, Axis
 
-from pymodaq_plugins_teaching.hardware.generator import Generator
+from pymodaq_plugins_teaching.hardware.generator import Generator, WaveType
 
 
 class DAQ_1DViewer_Generator(DAQ_Viewer_base):
@@ -34,8 +34,12 @@ class DAQ_1DViewer_Generator(DAQ_Viewer_base):
     """
     params = comon_parameters+[
         {'title': 'Npts:', 'name': 'npts', 'type': 'int', 'value': 256},
-        {'title': 'Delta time (s):', 'name': 'delta_t', 'type': 'float', 'value': 1e-6},
-        ]
+        {'title': 'Delta time (s):', 'name': 'delta_t', 'type': 'float', 'value': 1e-3, 'suffix': 's', 'siPrefix': True},
+        {'title': 'Waveforms:', 'name': 'waveform', 'type': 'list', 'limits': WaveType.names()},
+        {'title': 'Amplitude:', 'name': 'amplitude', 'type': 'float', 'value': 1, 'suffix': 'V', 'siPrefix': True},
+        {'title': 'Frequency:', 'name': 'frequency', 'type': 'float', 'value': 10, 'suffix': 'Hz', 'siPrefix': True},
+
+    ]
 
     def ini_attributes(self):
         #  TODO declare the type of the wrapper (and assign it to self.controller) you're going to use for easy
@@ -53,11 +57,12 @@ class DAQ_1DViewer_Generator(DAQ_Viewer_base):
         param: Parameter
             A given parameter (within detector_settings) whose value has been changed by the user
         """
-        ## TODO for your custom plugin
-        if param.name() == "a_parameter_you've_added_in_self.params":
-           self.controller.your_method_to_apply_this_param_change()  # when writing your own plugin replace this line
-#        elif ...
-        ##
+        if param.name() == "amplitude":
+           self.controller.amplitude = Q_(param.value(), param.opts['suffix'])
+        elif param.name() == 'frequency':
+            self.controller.frequency = Q_(param.value(), 'Hz')
+        elif param.name() == 'waveform':
+            self.controller.waveform = param.value()
 
     def ini_detector(self, controller=None):
         """Detector communication initialization
@@ -112,7 +117,7 @@ class DAQ_1DViewer_Generator(DAQ_Viewer_base):
         self.dte_signal.emit(DataToExport(
             name='mydte',
             data=[DataFromPlugins(name='mymock',
-                                  data=[waveform.magnitude],
+                                  data=[waveform.magnitude + 0.1 *np.random.randn(*waveform.shape)],
                                   dim='Data1D', labels=['label00',],
                                   units=waveform.units,
                                   axes=[Axis('Time', units='s',

@@ -1,15 +1,16 @@
-from qtpy import QtWidgets
 import numpy as np
+
+from qtpy import QtWidgets
+from typing import Optional
 
 from pymodaq_gui.utils.custom_app import CustomApp
 from pymodaq_gui.utils.dock import Dock, DockArea
+from pymodaq_gui.plotting.data_viewers.viewer1D import Viewer1D, DataToExport, DataWithAxes
 
-from pymodaq_gui.plotting.data_viewers.viewer1D import Viewer1D, DataToExport
 from pymodaq.control_modules.daq_viewer import DAQ_Viewer, DAQTypesEnum
 
 
 class GenApp(CustomApp):
-
 
     params = [
         {'title': 'Frequency', 'name': 'frequency', 'type': 'slide', 'value': 50, 'default': 50, 'limits': (24, 123), 'subtype': 'linear'},
@@ -19,18 +20,21 @@ class GenApp(CustomApp):
     def __init__(self, parent):
         super().__init__(parent)
 
+        self.viewer1D_raw: Optional[Viewer1D] = None
+        self.viewer1D_fft: Optional[Viewer1D] = None
 
+        self.daq_viewer: Optional[DAQ_Viewer] = None
 
-        self.viewer1D: Viewer1D = None
+        self.dwa_raw: Optional[DataWithAxes] = None
 
         self.setup_ui()
 
 
     def setup_docks(self):
         self.docks['daq_viewer'] = Dock('DAQViewer Generator')
-        self.docks['raw_viewer'] = Dock('Raw Viewer')
+        self.docks['raw_viewer'] = Dock('Raw Viewer', autoOrientation=False)
         self.docks['fft_viewer'] = Dock('FFT Viewer')
-        self.docks['parameters'] = Dock('Parameters')
+        self.docks['parameters'] = Dock('Parameters', autoOrientation=False)
 
 
         self.docks['fft_viewer'].hideTitleBar()
@@ -54,7 +58,6 @@ class GenApp(CustomApp):
         self.daq_viewer.daq_type = DAQTypesEnum.DAQ1D
         QtWidgets.QApplication.processEvents()
         self.daq_viewer.detector = 'Generator'
-
         self.daq_viewer.init_hardware_ui(True)
         self.daq_viewer.settings.child('main_settings', 'wait_time').setValue(50)  # ('child', 'subchild', 'subsubchild')
 
@@ -63,7 +66,7 @@ class GenApp(CustomApp):
         self.daq_viewer.snap()
 
 
-        self.docks['raw_viewer'].addWidget(self.viewer1D_raw.parent)
+        self.docks['raw_viewer'].addWidget(self.viewer1D_raw.parent)  # parent for accessing QWidget (for adding in dock)
         self.docks['fft_viewer'].addWidget(self.viewer1D_fft.parent)
         self.docks['daq_viewer'].setVisible(False)
         self.docks['parameters'].addWidget(self.settings_tree)
@@ -74,6 +77,7 @@ class GenApp(CustomApp):
         self.add_action('show', 'Show/Hide Viewer', 'read2', tip="Show/Hide the DAQ_Viewer panel", checkable=True)
 
     def connect_things(self):
+        # self.daq_viewer.grab_done_signal.connect(lambda dte: self.viewer1D_raw.show_data(dte[0]))
         self.daq_viewer.grab_done_signal.connect(self.get_dwa_and_show)
 
         self.connect_action('snap', self.daq_viewer.snap)
@@ -88,7 +92,7 @@ class GenApp(CustomApp):
         self.viewer1D_raw.show_data(self.dwa_raw)
 
         self.dwa_fft = self.dwa_raw.ft()
-        self.viewer1D_fft.show_data(np.abs(self.dwa_fft))
+        self.viewer1D_fft.show_data(abs(self.dwa_fft))
     
     def value_changed(self, param):
         if param.name() == "frequency":
@@ -96,7 +100,6 @@ class GenApp(CustomApp):
 
 def main():
     from pymodaq_gui.utils.utils import mkQApp
-    from pymodaq_gui.utils.dock import DockArea
     from qtpy import QtWidgets
     import numpy as np
 

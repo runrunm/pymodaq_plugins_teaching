@@ -32,7 +32,7 @@ class GenExt(CustomExt):
         self.viewer1D_raw: Optional[Viewer1D] = None
         self.viewer1D_fft: Optional[Viewer1D] = None
 
-        self.daq_viewer: DAQ_Viewer = self.modules_manager.get_mod_from_name('Generator')
+        self.daq_viewer: DAQ_Viewer = self.modules_manager.get_mod_from_name("Generator")
 
         self.dwa_raw: Optional[DataWithAxes] = None
 
@@ -44,7 +44,6 @@ class GenExt(CustomExt):
         self.docks['fft_viewer'] = Dock('FFT Viewer')
         self.docks['parameters'] = Dock('Parameters', autoOrientation=False)
 
-
         self.docks['fft_viewer'].hideTitleBar()
 
         self.dockarea.addDock(self.docks['raw_viewer'], 'right')
@@ -53,22 +52,23 @@ class GenExt(CustomExt):
 
 
         self.viewer1D_raw = Viewer1D(QtWidgets.QWidget())
+        self.docks['raw_viewer'].addWidget(self.viewer1D_raw.parent)  # parent for accessing QWidget (for adding in dock)
+
         self.viewer1D_fft = Viewer1D(QtWidgets.QWidget())
+        self.docks['fft_viewer'].addWidget(self.viewer1D_fft.parent)
+
 
         dockarea = DockArea()
         main_window = QtWidgets.QMainWindow()
         main_window.setCentralWidget(dockarea)
 
-        self.daq_viewer.settings.child('main_settings', 'wait_time').setValue(50)  # ('child', 'subchild', 'subsubchild')
+        self.docks['parameters'].addWidget(self.settings_tree)
 
-        QtWidgets.QApplication.processEvents()
+        self.daq_viewer.settings.child('main_settings', 'wait_time').setValue(50)  # ('child', 'subchild', 'subsubchild')
         self.daq_viewer.snap()
 
         self.dashboard.mainwindow.setVisible(False)
 
-        self.docks['raw_viewer'].addWidget(self.viewer1D_raw.parent)  # parent for accessing QWidget (for adding in dock)
-        self.docks['fft_viewer'].addWidget(self.viewer1D_fft.parent)
-        self.docks['parameters'].addWidget(self.settings_tree)
 
     def setup_actions(self):
         self.add_action('snap', 'Snap Data', 'Snapshot2_32', tip="Click to get one data shot")

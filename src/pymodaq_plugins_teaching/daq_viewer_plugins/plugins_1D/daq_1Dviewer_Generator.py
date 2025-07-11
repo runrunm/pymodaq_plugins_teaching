@@ -1,6 +1,5 @@
 import numpy as np
 
-from pymodaq_utils.utils import ThreadCommand
 from pymodaq_data.data import DataToExport, Q_
 from pymodaq_gui.parameter import Parameter
 
@@ -9,6 +8,7 @@ from pymodaq.utils.data import DataFromPlugins, Axis
 
 from pymodaq_plugins_teaching.hardware.generator import Generator, WaveType
 
+from typing import Optional
 
 class DAQ_1DViewer_Generator(DAQ_Viewer_base):
     """ Instrument plugin class for a OD viewer.
@@ -44,13 +44,13 @@ class DAQ_1DViewer_Generator(DAQ_Viewer_base):
     def ini_attributes(self):
         #  TODO declare the type of the wrapper (and assign it to self.controller) you're going to use for easy
         #  autocompletion
-        self.controller: Generator = None
+        self.controller: Optional[Generator] = None
 
         #TODO declare here attributes you want/need to init with a default value
         pass
 
     def commit_settings(self, param: Parameter):
-        """Apply the consequences of a change of value in the detector settings
+        """Apply the consequences of a value change in the detector settings
 
         Parameters
         ----------
@@ -69,13 +69,13 @@ class DAQ_1DViewer_Generator(DAQ_Viewer_base):
 
         Parameters
         ----------
-        controller: (object)
+        controller : (object)
             custom object of a PyMoDAQ plugin (Slave case). None if only one actuator/detector by controller
             (Master case)
 
         Returns
         -------
-        info: str
+        info : str
         initialized: bool
             False if initialization failed otherwise True
         """
@@ -104,9 +104,9 @@ class DAQ_1DViewer_Generator(DAQ_Viewer_base):
         ----------
         Naverage: int
             Number of hardware averaging (if hardware averaging is possible, self.hardware_averaging should be set to
-            True in class preamble and you should code this implementation)
+            True in class preamble, and you should code this implementation)
         kwargs: dict
-            others optionals arguments
+            other optional arguments
         """
 
         npts = self.settings['npts']

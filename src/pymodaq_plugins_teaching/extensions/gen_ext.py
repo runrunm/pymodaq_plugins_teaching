@@ -44,6 +44,7 @@ class GenExt(CustomExt):
         self.docks['fft_viewer'] = Dock('FFT Viewer')
         self.docks['parameters'] = Dock('Parameters', autoOrientation=False)
 
+        self.docks['raw_viewer'].hideTitleBar()
         self.docks['fft_viewer'].hideTitleBar()
 
         self.dockarea.addDock(self.docks['raw_viewer'], 'right')

@@ -98,7 +98,16 @@ class DAQ_0DViewer_Photodiode(DAQ_Viewer_base):
                                                data=[DataFromPlugins(name='Photodiode_temp',
                                                                     data=[np.array([0])],  # has to be a list
                                                                     dim='Data0D',  # optional
-                                                                    labels=['Photodiode_temp'])]))
+                                                                    labels=['Photodiode_temp']),
+                                                    
+                                                    DataFromPlugins(name='Photodiode_temp2',
+                                                                    data=[-np.array([0])],  # has to be a list
+                                                                    dim='Data0D',  # optional
+                                                                    labels=['Photodiode_temp2'])
+                                                                    
+                                                                    
+                                                                    
+                                                                    ]))
 
         info = "Whatever info you want to log"
         return info, initialized

@@ -6,7 +6,7 @@ from pymodaq_utils.utils import ThreadCommand  # object used to send info back t
 from pymodaq_gui.parameter import Parameter
 
 from pymodaq_plugins_teaching.hardware.spectrometer import Spectrometer
-# from pymodaq_data import Q_
+from pymodaq_data import Q_
 # from pymodaq.control_modules.thread_commands import ThreadStatus
 
 

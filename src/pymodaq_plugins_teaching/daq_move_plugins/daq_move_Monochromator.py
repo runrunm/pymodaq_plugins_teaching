@@ -38,31 +38,20 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
     # TODO add your particular attributes here if any
 
     """
-    is_multiaxes = False  # TODO for your plugin set to True if this plugin is controlled for a multiaxis controller
-    _axis_names: Union[List[str], Dict[str, int]] = ['']  # TODO for your plugin: complete the list
-    _controller_units: Union[str, List[str]] = 'nm'  # TODO for your plugin: put the correct unit here, it could be
-    # TODO  a single str (the same one is applied to all axes) or a list of str (as much as the number of axes)
-    _epsilon: Union[
-        float, List[float]] = 0.1  # TODO replace this by a value that is correct depending on your controller
-    # TODO it could be a single float of a list of float (as much as the number of axes)
-    data_actuator_type = DataActuatorType.DataActuator  # whether you use the new data style for actuator otherwise set this
-    # as  DataActuatorType.float  (or entirely remove the line)
+    is_multiaxes = False
+    _axis_names: Union[List[str], Dict[str, int]] = ['axis_1', 'axis_2']
+    _controller_units: Union[str, List[str]] = 'nm'
+    _epsilon: Union[float, List[float]] = 0.1
+    data_actuator_type = DataActuatorType.DataActuator
 
     params = [
-                 {'title': 'Info', 'name': 'info', 'type': 'str', 'value': ''},
-                 {'title': 'Grating', 'name': 'grating', 'type': 'list', 'limits': Spectrometer.gratings, 'value': Spectrometer.gratings[0]}
-             ] + comon_parameters_fun(is_multiaxes, axis_names=_axis_names, epsilon=_epsilon)
-
-    # _epsilon is the initial default value for the epsilon parameter allowing pymodaq to know if the controller reached
-    # the target value. It is the developer responsibility to put here a meaningful value
+        {'title': 'Info', 'name': 'info', 'type': 'str', 'value': ''},
+        {'title': 'Tau', 'name': 'tau', 'type': 'float', 'value': 500, 'units': 'ms'},
+        {'title': 'Grating', 'name': 'grating', 'type': 'list', 'limits': Spectrometer.gratings, 'value': Spectrometer.gratings[0]}
+    ] + comon_parameters_fun(is_multiaxes, axis_names=_axis_names, epsilon=_epsilon)
 
     def ini_attributes(self):
-        #  TODO declare the type of the wrapper (and assign it to self.controller) you're going to use for easy
-        #  autocompletion
         self.controller: Spectrometer = None
-
-        # TODO declare here attributes you want/need to init with a default value
-        pass
 
     def get_actuator_value(self):
         """Get the current value from the hardware with scaling conversion.
@@ -71,31 +60,14 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         -------
         float: The position obtained after scaling conversion.
         """
-        ## TODO for your custom plugin
-        pos = DataActuator(
-            data=self.controller.get_wavelength())  # when writing your own plugin replace this line
+        pos = DataActuator(data=self.controller.get_wavelength(), units=self.axis_unit)
         pos = self.get_position_with_scaling(pos)
         return pos
 
-    def user_condition_to_reach_target(self) -> bool:
-        """ Implement a condition for exiting the polling mechanism and specifying that the
-        target value has been reached
-
-        Returns
-        -------
-        bool: if True, PyMoDAQ considers the target value has been reached
-        """
-        # TODO either delete this method if the usual polling is fine with you, but if need you can
-        #  add here some other condition to be fulfilled either a completely new one or
-        #  using or/and operations between the epsilon_bool and some other custom booleans
-        #  for a usage example see DAQ_Move_brushlessMotor from the ThorLabs plugin
-        return True
-
     def close(self):
         """Terminate the communication protocol"""
-        ## TODO for your custom plugin
-        # raise NotImplementedError  # when writing your own plugin remove this line
-        self.controller.close_communication()  # when writing your own plugin replace this line
+        if self.is_master:
+            self.controller.close_communication()  # when writing your own plugin replace this line
 
     def commit_settings(self, param: Parameter):
         """Apply the consequences of a change of value in the detector settings
@@ -105,7 +77,9 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         param: Parameter
             A given parameter (within detector_settings) whose value has been changed by the user
         """
-
+        if param.name() == "tau":
+            tau_q = Q_(param.value(), 'ms')
+            self.controller.tau = tau_q.m_as('s')
         if param.name() == "grating":
             self.controller.grating = param.value()
         else:
@@ -129,19 +103,26 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
 
         if self.is_master:  # is needed when controller is master
             self.controller = Spectrometer()  # arguments for instantiation
+            self.controller.set_wavelength(532)
+            initialized = self.controller.open_communication()
+        else:
+            self.controller = controller
+            initialized = True
+        
+        self.settings.child('tau').setValue(Q_(self.controller.tau, 's').m_as('ms'))  # On vient sonder la valeur tau du controlleur 
+                                                                                        # pour la mettre à jour dans les settings (on ne la hardcode pas)
+        self.settings.child('grating').setValue(self.controller.grating)
 
-        info = "Whatever info you want to log"
-        initialized = self.controller.open_communication()
-
+        info = "Controller initialized"
         self.settings.child('info').setValue(self.controller.infos)
 
         # A checker pour changer les valeurs initiales des boites verte et rouge (move_abs)
-        # self.emit_status(ThreadCommand(ThreadStatus.UPDATE_UI, 'set_abs_value_green', args=(Q_('300 nm'), ))
+        # self.emit_status(ThreadCommand(ThreadStatus.UPDATE_UI, 'set_abs_value_green', args=(Q_('300 nm'), )))
 
         return info, initialized
 
     def move_abs(self, value: DataActuator):
-        """ Move the actuator to the absolute target defined by value
+        """Move the actuator to the absolute target defined by value
 
         Parameters
         ----------
@@ -168,7 +149,7 @@ class DAQ_Move_Monochromator(DAQ_Move_base):
         value = self.set_position_relative_with_scaling(value)
 
         ## TODO for your custom plugin
-        self.controller.set_wavelength(value.value('nm'), set_type='rel')  # when writing your own plugin replace this line
+        self.controller.set_wavelength(value.value(self.axis_unit), set_type='rel')  # when writing your own plugin replace this line
         self.emit_status(ThreadCommand('Update_Status', ['Some info you want to log']))
 
     def move_home(self):
